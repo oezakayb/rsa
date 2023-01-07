@@ -1,7 +1,0 @@
-CFLAGS=-O0
-
-all: main
-main: main.c semiprime.S
-        $(CC) $(CFLAGS) -o $@ $^
-clean:
-        rm -f main
