@@ -9,7 +9,7 @@ void generate_primes(unsigned long *p, unsigned long *q){
         prand = r1 << 32 | r2;
     } while(is_prime(prand) == 0);
 
-    uint64_t max = ((2 >> 64) - 1) / prand;
+    uint64_t max = UINT64_MAX / prand;
 
     do{
         uint64_t r1 = (uint64_t) arc4random();
