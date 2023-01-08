@@ -1,3 +1,5 @@
+#include "rsa_params.h"
+
 const char* usage_msg =
         "Usage: %s [options]   Prints out the public and private key pairs. Try -h to see the options\n"
         "   or: %s -h / --help   Show all options\n";
@@ -25,7 +27,7 @@ void print_help(const char* progname) {
 
 int main(int argc, char** argv) {
 
-    const char* progname = argv[0];
+    const char *progname = argv[0];
 
     int opt;
     int v = 0;
@@ -33,11 +35,11 @@ int main(int argc, char** argv) {
     bool bbool = false;
 
     struct option long_options[] = {
-            {"help",    0,              NULL, 'h'},
-            {0,         0,                 0,  0 }
+            {"help", 0, NULL, 'h'},
+            {0,      0, 0,    0}
     };
 
-    while((opt = getopt_long(argc, argv, "V:B:h", long_options, 0)) != -1) {
+    while ((opt = getopt_long(argc, argv, "V:B:h", long_options, 0)) != -1) {
         switch (opt) {
             case 'V':
                 v = atoi(optarg);
@@ -45,7 +47,7 @@ int main(int argc, char** argv) {
             case 'B':
                 bbool = true;
                 b = atoi(optarg);
-                if(b == 0){
+                if (b == 0) {
                     fprintf(stderr, "Argument of B is 0 or not an integer.\n");
                     print_usage(progname);
                     return EXIT_FAILURE;
@@ -59,3 +61,17 @@ int main(int argc, char** argv) {
                 return EXIT_FAILURE;
         }
     }
+
+    unsigned long *e,*d, *N;
+
+    switch(v) {
+        case 0:
+            get_rsa_params(e, d, N);
+            break;
+
+        case 1:
+            break;
+    }
+
+    fprintf("Public key: %ul, %ul\n" + "Private key: %ul, %ul\n", *e, *N, *d, *N);
+}
