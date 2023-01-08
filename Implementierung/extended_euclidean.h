@@ -1,7 +1,3 @@
 #include <stdio.h>
 
-struct tuple {
-	signed long s, t;
-};
-
-struct tuple compute_d(unsigned long N, unsigned long e);
+void compute_d(unsigned long N, unsigned long e, signed long* s, signed long* t);
