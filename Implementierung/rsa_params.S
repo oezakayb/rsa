@@ -6,7 +6,7 @@
  isprime:
         mov x1, x0 //n
         cmp x1, 1 //if (n <= 1) return 0;
-        bls .LifRes
+        b.ls .LifRes
         mov x2, 1 //for (unsigned long i = 2; i <= sqrt(n); i++)
         bl sqrt
         mov x3, x0
@@ -14,13 +14,14 @@
    .LforStart:
         add x2, 1
         cmp x2, x3
-        bhi .LforEnd
+        b.hi .LforEnd
         udiv x0, x1, x2
         msub x0, x2, x0, x1
         cmp x0, 0
-        bne .LforStart
+        b.ne .LforStart
 
-   .LifRes: mov x0, 0
+   .LifRes:
+        mov x0, 0
         ret
 
    .LforEnd:
@@ -42,7 +43,7 @@
 
         bl isprime
         cmp x0, 0
-        beq .LwhileStart1
+        b.eq .LwhileStart1
 
         mov x6, 0xffffffffffffffff //optimize 2. prime generation
         udiv x6, x6, x3
@@ -57,11 +58,11 @@
         mov x0, x4
 
         cmp x0, x6
-        bhi .LwhileStart2
+        b.hi .LwhileStart2
 
         bl isprime
         cmp x0, 0
-        beq .LwhileStart2
+        b.eq .LwhileStart2
 
         str x3, [x2] //*p
         str x4, [x1] //*q
@@ -90,7 +91,7 @@
          b .Lwhile
  .LendWhile:
          add w1, w1, 1
-        b .Lloop
+         b .Lloop
  .LendLoop:
          cmp w0, 1
          b.le .Lend
@@ -103,3 +104,5 @@
  .Lequal:
          mov w0, 1
          ret
+
+ get_rsa_params:
