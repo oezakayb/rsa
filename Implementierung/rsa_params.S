@@ -1,18 +1,25 @@
 .global get_rsa_params
  .text
- // w0 number
- // w6 is 0
 
  isprime:
         mov x1, x0 //n
         cmp x1, 1 //if (n <= 1) return 0;
         b.ls .LifRes
-        mov x2, 1 //for (unsigned long i = 2; i <= sqrt(n); i++)
+        mov x2, 2 //for (unsigned long i = 2; i <= sqrt(n); i++)
         bl sqrt
         mov x3, x0
 
+        //check for 2 and all even numbers
+        cmp x2, x3
+        b.hi .LforEnd
+        udiv x0, x1, x2
+        msub x0, x2, x0, x1
+        cmp x0, 0
+        b.eq .LifRes
+        mov x2, 1
+
    .LforStart:
-        add x2, 1
+        add x2, 2
         cmp x2, x3
         b.hi .LforEnd
         udiv x0, x1, x2
@@ -28,7 +35,7 @@
         mov x0, 1
         ret
 
- generateprime:
+ generateprimes:
         //x1 = *q
         mov x2, x0 //*p
 
@@ -64,45 +71,23 @@
         cmp x0, 0
         b.eq .LwhileStart2
 
-        str x3, [x2] //*p
-        str x4, [x1] //*q
+        str x0, x3 //p
+        str x1, x4 //q
 
         ret
 
-
- semiprime:
-         mov w6, 0
-         mov w1, 2 //i
-         mov w2, 0 //counter
- .Lloop:
-         cmp w2 , 2
-         b.ge .LendLoop
-         mul w3, w1, w1
-         cmp w3, w0
-         b.gt .LendLoop
- .Lwhile:
-         udiv w5, w0, w1
-         mul w5, w5, w1
-         sub w5, w0, w5
-         cmp w5, 0
-         b.ne .LendWhile
-         udiv w0, w0, w1
-         add w2, w2, 1
-         b .Lwhile
- .LendWhile:
-         add w1, w1, 1
-         b .Lloop
- .LendLoop:
-         cmp w0, 1
-         b.le .Lend
-         add w2, w2, 1
- .Lend:
-         cmp w2, 2
-         b.eq .Lequal
-         mov w0, 0
-         ret
- .Lequal:
-         mov w0, 1
-         ret
-
  get_rsa_params:
+        mov x3, x0 //*e
+        mov x4, x1 //*d
+
+        bl generateprimes
+        //x0=p, x1=q
+        mul x5, x0, x1 //x5 = n
+        str x5, [x2] //x2 = *n
+        sub x0, 1
+        sub x1, 1
+        mul x0, x0, x1 //phi(n) = (p-1)*(q-1)
+        //choose e, calculate d
+        str x0, [x3] //x0 = e
+        str x1, [x4] //x1 = d
+
