@@ -21,9 +21,16 @@ Das Praktikum Aspekte der systemnahen Programmierung bei der Spieleentwicklung b
 
 \section{Lösungsansatz}
 \subsection*{2.1 Funktionsweise von RSA }
+Der RSA-Algorithmus gehört zu dem Public-key cryptography, Asymmetrisches Kryptosystem. Dies bedeutet für die Verschlüsselung der Nachricht wird der Public Key verwendet und bei der Entschlüsselung den Private Key. Ein Schlüssel ist ein Tupel, der aus Variablen besteht. Der öffentliche Schlüssel ist aus dem Tupel (e, N) und der private Schlüssel aus dem Tupel (d,N). Für die Wahl diese Variabeln gibt es bestimmten mathematischen Bedingungen.\newline Nach dem man die Schlüssel generiert hat, kann man die Nachricht mit der Formel verschlüsseln
+\begin{align}
+    c  {=}   m^2 \mod N
+\end{align} 
 \subsection*{2.2 Primzahl Generierung }
-\subsection*{2.3 Der erweiterte Euklidische Algorithmus}
-\subsection*{2.4 Sicherheit von RSA}
+Für die Wahl von N werden zwei Primezahl verwendet, p und q.
+
+\subsection*{2.3 Wahl für e }
+\subsection*{2.4 Der erweiterte Euklidische Algorithmus}
+\subsection*{2.5 Sicherheit von RSA}
 
 
 
