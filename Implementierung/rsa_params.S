@@ -1,5 +1,5 @@
 .global get_rsa_params
- .text
+.text
 
  isprime:
         mov x1, x0 //n
