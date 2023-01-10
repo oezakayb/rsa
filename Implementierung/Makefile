@@ -1,8 +1,7 @@
-CC = aarch64-linux-gnu-gcc
-CFLAGS = -O3 -march=armv8-a
+CFLAGS = -O3
 
 all: rsa
 rsa: main.c rsa_params.S
-	$(CC) $(CFLAGS) -o rsa main.c rsa_params.S
+	$(CC) $(CFLAGS) -o $@ $^
 clean:
 	rm -f rsa
