@@ -78,5 +78,5 @@ int main(int argc, char** argv) {
             break;
     }
 
-    fprintf("Public key: %ul, %ul\n" + "Private key: %ul, %ul\n", *e, *N, *d, *N);
+    printf("Public key: %lu, %lu\n Private key: %lu, %lu\n", *e, *N, *d, *N);
 }
