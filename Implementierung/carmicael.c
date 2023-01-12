@@ -1,6 +1,6 @@
-#include "charmicael.h"
+#include "carmicael.h"
 
-int charmicael(unsigned long n) {
+int carmicael(unsigned long n) {
     int k;
     for (int i = 2; i < n; i++) {
         if (gcd(i, n) == 1) {
