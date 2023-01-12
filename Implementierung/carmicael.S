@@ -43,7 +43,7 @@ pow:
         cmp w3, w1
         b.ge .Lend1
         mul w0,w0,w2
-        b. .Lloop2
+        b .Lloop2
 .Lend1:
         ret
 
@@ -82,7 +82,7 @@ charmicael:
         cmp w10, 1
         b.eq .Lcheck
         add w6, w6, 1 //j++
-        b. LwhileLoop
+        b .LwhileLoop
 
 .Lcheck:
         cmp w6, w5//if(j < k)
