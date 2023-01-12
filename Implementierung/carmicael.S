@@ -37,12 +37,13 @@ pow:
         //w0 = i
         //w1 = j
         mov w2, w0
-.Lloop:
+.Lloop2:
 
         mov w3, 0     //as counter
         cmp w3, w1
         b.ge .Lend
         mul w0,w0,w2
+        b. .Lloop2
 .Lend:
         ret
 
@@ -54,7 +55,7 @@ charmicael:
         mov w2, w1
         mov w4, 2     //w4 = i = 2(for loop counter)
 
-.Lloop:
+.Lloop3:
         cmp w4, w2    //i < n
         b.ge .Lend
 
@@ -81,7 +82,7 @@ charmicael:
         cmp w10, 1
         b.eq .Lcheck
         add w6, w6, 1 //j++
-        b. Lwhileloop
+        b. LwhileLoop
 
 .Lcheck:
         cmp w6, w5//if(j < k)
@@ -89,7 +90,7 @@ charmicael:
 
 .LnextLoop:
         add w4, w4, 1
-        b .Lloop
+        b .Lloop3
 
 
 .Lupdate:
