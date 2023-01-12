@@ -41,10 +41,10 @@ pow:
 
         mov w3, 0     //as counter
         cmp w3, w1
-        b.ge .Lend
+        b.ge .Lend1
         mul w0,w0,w2
         b. .Lloop2
-.Lend:
+.Lend1:
         ret
 
 
@@ -57,7 +57,7 @@ charmicael:
 
 .Lloop3:
         cmp w4, w2    //i < n
-        b.ge .Lend
+        b.ge .Lend2
 
 //need to change to w0 and w1
         bl gcd        //if (gcd(i, n) != 1) go to next for loop
@@ -96,7 +96,7 @@ charmicael:
 .Lupdate:
         mov w5, w6//k = j
 
-.Lend:
+.Lend2:
         mov w0, w5
         ret
 
