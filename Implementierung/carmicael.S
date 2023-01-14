@@ -49,7 +49,7 @@ pow:
 
 
 
-charmicael:
+carmicael:
         mov w1, w0    // w1 = n (input)
         mov w5, 1     // w5 = k(result) = 1
         mov w2, w1
@@ -60,6 +60,7 @@ charmicael:
         b.ge .Lend2
 
 //need to change to w0 and w1
+        mov w0, w4
         bl gcd        //if (gcd(i, n) != 1) go to next for loop
         cmp w0, 0
         b.eq .LnextLoop
