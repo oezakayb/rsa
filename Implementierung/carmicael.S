@@ -10,7 +10,7 @@ gcd:
         b.eq .Lretb
 
         cmp w1, 0
-        b.eq .Lretb
+        b.eq .Lend
 
         cmp w0, w1
         b.eq .Lend
@@ -24,27 +24,10 @@ gcd:
         sub w1, w1, w0
         b .Lloop
 
-//if is not working than return 0      
 .Lretb:
-        mov w0, 0
+        mov w0, w1
         ret
 .Lend:
-        mov w0, 1
-        ret
-
-
-pow:
-        //w0 = i
-        //w1 = j
-        mov w2, w0
-.Lloop2:
-
-        mov w3, 0     //as counter
-        cmp w3, w1
-        b.ge .Lend1
-        mul w0,w0,w2
-        b .Lloop2
-.Lend1:
         ret
 
 
@@ -55,50 +38,57 @@ carmicael:
         mov w2, w1
         mov w4, 2     //w4 = i = 2(for loop counter)
 
-.Lloop3:
+        cmp w1, 1//if (n == 1|| n == 2)
+        b.eq .Lspecialend
+        cmp w1, 2
+        b.eq .Lspecialend
+
+.Lloop1:
         cmp w4, w2    //i < n
         b.ge .Lend2
 
-//need to change to w0 and w1
-        mov w0, w4
+
+        mov w0, w4      //gcd(i,n)
         bl gcd        //if (gcd(i, n) != 1) go to next for loop
-        cmp w0, 0
-        b.eq .LnextLoop
+        cmp w0, 1
+        b.ne .LnextLoop
+        mov w7, w4    //w7 = x = i
         mov w6, 1     //w6 = j = 1
 
-/////////////////////////////////////////////////////
+.LwhileCondition:
+        cmp w7, 1//while (x != 1)
+        b.ne .LsetK
 
 .LwhileLoop:
-        //setup for pow
-        mov w0, w4
-        mov w1, w6
-        //(pow(i, j) % n)
-        bl pow
-        mov w7, w0
-        //%/////////////
-        sdiv w8, w7, w2
-        mul w9, w8, w2
-        sub w10, w7, w9
-        ////////////////
-        cmp w10, 1
-        b.eq .Lcheck
-        add w6, w6, 1 //j++
-        b .LwhileLoop
+        mul w7, w7, w4
+        rem w7, w7, w2   //modulo
 
-.Lcheck:
-        cmp w6, w5//if(j < k)
-        b.lt .Lupdate
+        add w6, 1  //j++
+        b .LwhileCondition
+
+
+.LsetK:
+        //setUp for gcd
+        mov w0, w5
+        mov w1, w6
+        //k = (k*j)/gcd(k,j);
+        mul w5, w5, w6
+        bl gcd
+        div w5, w5, w0
+
 
 .LnextLoop:
         add w4, w4, 1
-        b .Lloop3
+        b .Lloop1
 
 
-.Lupdate:
-        mov w5, w6//k = j
 
 .Lend2:
         mov w0, w5
+        ret
+
+.Lspecialend:
+        mov w0, 1
         ret
 
 
