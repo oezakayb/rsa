@@ -61,7 +61,8 @@ carmicael:
 
 .LwhileLoop:
         mul w7, w7, w4
-        rem w7, w7, w2   //modulo
+        udiv w8, w7, w2   //modulo
+        msub w7, w8, w2, w7
 
         add w6, w6, 1  //j++
         b .LwhileCondition
@@ -74,7 +75,7 @@ carmicael:
         //k = (k*j)/gcd(k,j);
         mul w5, w5, w6
         bl gcd
-        div w5, w5, w0
+        div w5, w0
 
 
 .LnextLoop:
