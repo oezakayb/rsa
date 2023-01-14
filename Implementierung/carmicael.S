@@ -63,7 +63,7 @@ carmicael:
         mul w7, w7, w4
         rem w7, w7, w2   //modulo
 
-        add w6, 1  //j++
+        add w6, w6, 1  //j++
         b .LwhileCondition
 
 
