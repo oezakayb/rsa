@@ -75,7 +75,7 @@ carmicael:
         //k = (k*j)/gcd(k,j);
         mul w5, w5, w6
         bl gcd
-        div w5, w0
+        udiv w5, w5, w0
 
 
 .LnextLoop:
