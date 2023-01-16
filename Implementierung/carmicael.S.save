@@ -18,15 +18,12 @@ carmicael:
 
 
         mov w0, w4      //gcd(i,n)
-	mov w1, w2
         b .Lgcd      //if (gcd(i, n) != 1) go to next for loop
 
 .Lcontinue:
         cmp w0, 1
         b.ne .LnextLoop
-
         mov w7, w4    //w7 = x = i
-
         mov w6, 1     //w6 = j = 1
 
 .LwhileCondition:
@@ -69,7 +66,6 @@ carmicael:
         ret
 
 .Lspecialend:
-
         mov w0, 1
         ret
 

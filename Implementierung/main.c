@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    unsigned long *e,*d, *N;
+   // unsigned long *e,*d, *N;
 
     switch(v) {
         case 0:

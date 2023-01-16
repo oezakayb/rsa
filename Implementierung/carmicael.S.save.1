@@ -18,15 +18,14 @@ carmicael:
 
 
         mov w0, w4      //gcd(i,n)
-	mov w1, w2
         b .Lgcd      //if (gcd(i, n) != 1) go to next for loop
 
 .Lcontinue:
         cmp w0, 1
         b.ne .LnextLoop
-
+mov w0, w4
+ret
         mov w7, w4    //w7 = x = i
-
         mov w6, 1     //w6 = j = 1
 
 .LwhileCondition:
@@ -38,7 +37,7 @@ carmicael:
         mul w7, w7, w4
 
         udiv w8, w7, w2   
-        msub w7, w8, w2, w7
+        msub w7, w8, w2, w7 if (gcd(i, n) == 1) {
 
 
         add w6, w6, 1  //j++
@@ -79,35 +78,17 @@ carmicael:
 //w1 input2 : b
 //gcd part
 .Lgcd:
-        cmp w0, 0
-        b.eq .Lretb
-
         cmp w1, 0
         b.eq .Lend
-
-        cmp w0, w1
-        b.eq .Lend
-
-        cmp w0, w1
-        b.lt .Lsmaller
-        sub w0, w0, w1
-        b .Lgcd
-
-.Lsmaller:
-        sub w1, w1, w0
-        b .Lgcd
-
-.Lretb:
+	
+	
         mov w0, w1
-        b .Lcontinue
+
 .Lend:
         b .Lcontinue
 
 
 .Lgcd2:
-        cmp w0, 0
-        b.eq .Lretb2
-
         cmp w1, 0
         b.eq .Lend3
 

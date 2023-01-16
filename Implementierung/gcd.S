@@ -5,6 +5,7 @@
 //w1 input2 : b
 
 gcd:
+
 .Lloop:
         cmp w0, 0
         b.eq .Lretb
