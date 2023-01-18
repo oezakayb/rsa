@@ -1,7 +1,29 @@
 .global extended_euclid
 .text
+//you can delete this explanation later
+//for example : N = 40 and e = 17
+// part1
+// N   e
+// 40  17
+// 17  6 = 40 mod 17
+// 6   5 = 17 mod 6
+// 5   1 = 6 mod 5
+// 1   0 = 5 mod 1
+// we want to save the number 40, 17, 6, 5, 1 in the stack
+// because we will need it later in part2
 
+//part2
+//we calculate s and t
+//t is the output we want (it is d according to Aufgabe)
+// to calculate s and t :
+// the value of current s is the value of previous t
+// the value of t is (previous s) - stack[current]/stack[current+1] * (previous t)
+// s   t
+// 1   0
+// 0   1
+// 1   -1
 extended_euclid:
+//part1 - begin
         mov w5, 0 //loop counter
 .Lloop:
         cmp w1, 0
@@ -17,7 +39,8 @@ extended_euclid:
 
         add w5, w5, 1 //increment counter
         b .Lloop
-
+//part1 - end
+//part2 - begin
 .Lreverse:
         //check if w0 is 0
         //if yes, then gcd is 1 and continue to newLoop
@@ -42,7 +65,7 @@ extended_euclid:
 
         mov w0, w3
         ret
-
+//part2 - end
 .Lretfalse:
         //set sp to initial position
         mov w0, #16
