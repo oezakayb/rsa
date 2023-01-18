@@ -1,93 +1,211 @@
+.data
+seed: .quad 0x12345678
+mult: .quad 0x5DEECE66D
+inc: .quad 0xB
+
 .global get_rsa_params
 .text
 
- isprime:
-        mov x1, x0 //n
-        cmp x1, 1 //if (n <= 1) return 0;
-        b.ls .LifRes
-        mov x2, 2 //for (unsigned long i = 2; i <= sqrt(n); i++)
-        bl sqrt
-        mov x3, x0
+random64bit:
+        ldr x0, =seed
+        ldr x1, [x0]
+        ldr x2, =mult
+        ldr x3, =inc
+        mul x1, x1, x2
+        add x1, x1, x3
+        mul x4, x1, x2
+        add x4, x4, x3
+        str x4, [x0]
+        mov x0, x1
+        lsl x0, x0, 32
+        orr x0, x0, x4
+        ret
 
-        //check for 2 and all even numbers
-        cmp x2, x3
-        b.hi .LforEnd
-        udiv x0, x1, x2
-        msub x0, x2, x0, x1
-        cmp x0, 0
-        b.eq .LifRes
-        mov x2, 1
+ pow:
+        cbz x1, .Lret1
+        cbz x0, .Lret0
 
-   .LforStart:
-        add x2, 2
-        cmp x2, x3
-        b.hi .LforEnd
-        udiv x0, x1, x2
-        msub x0, x2, x0, x1
-        cmp x0, 0
-        b.ne .LforStart
+    .Lpow:
+        mul x0, x0, x0
+        sub x1, x1, 1
+        cbnz x1, .Lpow
+        ret
 
-   .LifRes:
+    .Lret1:
+        mov x0, 1
+        ret
+
+    .Lret0:
         mov x0, 0
         ret
 
-   .LforEnd:
+ isprime://combination of naive algorithm and miller rabin
+        mov x5, x0 //n
+        cmp x5, 1 //if (n <= 1) return 0;
+        b.ls .Lfalse
+
+        cmp x5, 3 //if (n <= 3) return 1;
+        b.ls .Ltrue
+
+        mov x2, 2 //if (n % 2 == 0) return 0;
+        udiv x0, x5, x2
+        msub x0, x2, x0, x5
+        cbz x0, .Lfalse
+
+        mov x2, 3 //if (n % 3 == 0) return 0;
+        udiv x0, x5, x2
+        msub x0, x2, x0, x5
+        cbz x0, .Lfalse
+
+        //if n>=2^62 miller-rabin will be used for performance
+        mov x0, 0x4000000000000000
+        cmp x0, x5
+        b.ls .LmillerRabin
+
+        mov x2, 5 //i = 5
+
+        .Lprep:
+        udiv x0, x5, x2
+        msub x0, x2, x0, x5
+        cbz x0, .Ltrue
+
+        cmp x2, 23 //squareing works after 25
+        b.eq .LprepEnd
+
+        add x2, x2, 2
+        udiv x0, x5, x2
+        msub x0, x2, x0, x5
+        cbz x0, .Ltrue
+
+        add x2, x2, 4
+        b .prep
+
+//naive prime check algorithm---------------------------------
+   .LprepEnd:
+        mov x2, 5 //for (unsigned long i = 5; i * i <= n; i+=6)
+
+   .LforStartNaive:
+        mul x3, x2, x2
+        cmp x3, x5
+        b.hi .Ltrue
+
+        udiv x0, x5, x2
+        msub x0, x2, x0, x5
+        cbz x0, .Lfalse
+
+        add x2, x2, 2
+        udiv x0, x5, x2
+        msub x0, x2, x0, x5
+        cbz x0, .Lfalse
+
+        add x2, x2, 4
+        b .LforStartNaive
+//--------------------------------------------------------
+//miller-rabin--------------------------------------------
+   .LmillerRabin:
+        //k = 4
+        sub x10, x5, 1 //d = n - 1
+        mov x11, 0 // s = 0
+
+        .LsLoop:
+        mov x0, 2
+        udiv x1, x10, x0
+        msub x1, x1, x0, x10
+        cbnz x1, .LsLoopEnd
+        udiv x10, x10, x0
+        add x11, x11, 1
+        b .LsLoop
+        .LsLoopEnd:
+
+        mov x12, 0 //i=0
+        .LforLoop:
+        cmp x12, 4
+        b.eq .Ltrue
+
+        bl random64bit
+        sub x1, x5, 3 // n-3
+        udiv x6, x0, x1 //x0 = rand()% n - 3
+        msub x0, x6, x1, x0
+        add x0, x0, 2// x0 = a
+        mov x1, x10 //d
+        bl pow //pow(a, d) x0=x
+        udiv x1, x0, x5
+        msub x0, x5, x1, x0
+
+        mov x6, 0 //j = 0
+        mov x7, 0 // y = 0
+            .LforJLoop:
+            cmp x11, x6
+            b.ls .LforJLoopEnd
+            mul x7, x0, x0
+            udiv x9, x7, x1
+            msub x7, x9, x1, x7
+
+            cmp x7, 1
+            b.ne .Lif
+            cmp x0, 1
+            b.eq .Lif
+            sub x9, x1, 1
+            cmp x0, x9
+            b.ne .Lfalse
+
+            .Lif:
+            mov x0, x7
+            add x6, x6, 1
+            b .LforJLoop
+
+        .LforJLoopEnd:
+        cmp x7, 1 //y!=1 ret false
+        b.ne .Lfalse
+
+        add x2, x2, 1
+        b .LforLoop
+//------------------------------------------------------
+   .Lfalse:
+        mov x0, 0
+        ret
+
+   .Ltrue:
         mov x0, 1
         ret
 
  generateprimes:
-        //x1 = *q
-        mov x2, x0 //*p
-
    .LwhileStart1:
-        bl arc4random
-        mov x3, x0
-        bl arc4random
-        mov x4, x0
-        lsl x3, 32
-        orr x3, x3, x4 //prand
-        mov x0, x3
-
+        bl random64bit
+        mov x13, x0
         bl isprime
-        cmp x0, 0
-        b.eq .LwhileStart1
+        cbz x0, .LwhileStart1
 
-        mov x6, 0xffffffffffffffff //optimize 2. prime generation
-        udiv x6, x6, x3
+        mov x15, 0xffffffffffffffff //optimize 2. prime generation
+        udiv x15, x15, x13
 
    .LwhileStart2:
-        bl arc4random
-        mov x4, x0
-        bl arc4random
-        mov x5, x0
-        lsl x4, 32
-        orr x4, x4, x5 //qrand
-        mov x0, x4
-
-        cmp x0, x6
+        bl random64bit
+        cmp x0, x15
         b.hi .LwhileStart2
-
+        mov x14, x0
         bl isprime
-        cmp x0, 0
-        b.eq .LwhileStart2
+        cbz x0, .LwhileStart2
 
-        str x0, x3 //p
-        str x1, x4 //q
+        mov x0, x13 //p
+        mov x1, x14 //q
 
         ret
 
- get_rsa_params:
+ get_rsa_params: //(*e, *d, *N)->--calculates and assigns the values
         mov x3, x0 //*e
         mov x4, x1 //*d
+        stp x3, x4, [sp, #-16]!
 
         bl generateprimes
         //x0=p, x1=q
         mul x5, x0, x1 //x5 = n
         str x5, [x2] //x2 = *n
-        sub x0, 1
-        sub x1, 1
+        sub x0, x0, 1
+        sub x1, x1, 1
         mul x0, x0, x1 //phi(n) = (p-1)*(q-1)
         //choose e, calculate d
+        ldp x0, x1, [sp], #16
         str x0, [x3] //x0 = e
         str x1, [x4] //x1 = d
 
