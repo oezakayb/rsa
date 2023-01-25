@@ -78,7 +78,7 @@ random64bit:
         cbz x0, .Ltrue
 
         add x2, x2, 4
-        b .prep
+        b .Lprep
 
 //naive prime check algorithm---------------------------------
    .LprepEnd:
@@ -192,20 +192,104 @@ random64bit:
 
         ret
 
+//you can delete this explanation later
+//for example : N = 40 and e = 17
+// part1
+// N   e
+// 40  17
+// 17  6 = 40 mod 17
+// 6   5 = 17 mod 6
+// 5   1 = 6 mod 5
+// 1   0 = 5 mod 1
+// we want to save the number 40, 17, 6, 5, 1 in the stack
+// because we will need it later in part2
+
+//part2
+//we calculate s and t
+//t is the output we want (it is d according to Aufgabe)
+// to calculate s and t :
+// the value of current s is the value of previous t
+// the value of t is (previous s) - stack[current]/stack[current+1] * (previous t)
+// s   t
+// 1   0
+// 0   1
+// 1   -1
+extended_euclid:
+//part1 - begin
+        mov x5, 0 //loop counter
+.Lloop:
+        cbz x1, .Lreverse
+
+        str x0, [sp, #-16]!
+
+        sdiv x2, x0, x1
+        msub x2, x1, x2, x0
+
+        mov x0, x1
+        mov x1, x2
+
+        add x5, x5, 1 //increment counter
+        b .Lloop
+//part1 - end
+//part2 - begin
+.Lreverse:
+        //check if w0 is 1
+        //if yes, then gcd is 1 and continue to newLoop
+        //if no, return 0
+        cmp x0, 1
+        b.ne .Lretfalse
+
+        mov x2, 1 //s
+        mov x3, 0 //t
+
+.Lnewloop:
+        mov x1, x0
+        ldr x0, [sp], #16
+
+        sdiv x4, x0, x1
+        mov x1, x3 //move t to other register
+        msub x3, x3, x4, x2 //calculate t
+        mov x2, x1 //s = t
+
+        subs x5, x5, 1 //loop as long as w5 > 0
+        b.ne .Lnewloop
+
+        mov x0, x3
+        ret
+//part2 - end
+.Lretfalse:
+        //set sp to initial position
+        mov x0, #16
+        mul x5, x5, x0
+        add sp, sp, x5
+
+        mov x0, 0
+	ret
+
  get_rsa_params: //(*e, *d, *N)->--calculates and assigns the values
-        mov x3, x0 //*e
-        mov x4, x1 //*d
-        stp x3, x4, [sp, #-16]!
+        stp x0, x1, [sp, #-16]!
 
         bl generateprimes
         //x0=p, x1=q
-        mul x5, x0, x1 //x5 = n
-        str x5, [x2] //x2 = *n
+        mul x3, x0, x1 //x3 = n
+        str x3, [x2] //x2 = *n
         sub x0, x0, 1
         sub x1, x1, 1
         mul x0, x0, x1 //phi(n) = (p-1)*(q-1)
-        //choose e, calculate d
+        mov x6, x0
+        mov x7, 2
+        udiv x7, x3, x7 // x7 = e
+
+.LchooseE:
+        mov x1, x7
+        bl extended_euclid
+        cbnz x0, .LendChooseE // x0 = d
+        add x7, x7, 1
+        b .LchooseE
+.LendChooseE:
+
         ldp x0, x1, [sp], #16
-        str x0, [x3] //x0 = e
-        str x1, [x4] //x1 = d
+        str x0, [x7] //x0 = e
+        str x1, [x0] //x1 = d
+        ret
 

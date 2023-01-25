@@ -1,7 +1,7 @@
-CFLAGS = -O0
+CFLAGS = -g -O0
 
 all: main
-main: test.c carmicael.S gcd.S
+main: main.c rsa_params.S
 	$(CC) $(CFLAGS) -o $@ $^
 clean:
 	rm -f main
