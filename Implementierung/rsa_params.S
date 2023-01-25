@@ -28,7 +28,8 @@ random64bit:
     .Lpow:
         mul x0, x0, x0
         sub x1, x1, 1
-        cbnz x1, .Lpow
+        cmp x1, 1
+        b.ne .Lpow
         ret
 
     .Lret1:
