@@ -31,6 +31,18 @@ void print_help(const char* progname) {
 }
 
 int main(int argc, char** argv) {
+//TESTING
+    unsigned long *e = malloc(sizeof * e);
+    unsigned long *d = malloc(sizeof * d);
+    unsigned long *N = malloc(sizeof * N);
+    get_rsa_params(e, d, N);
+    printf("result:\n");
+    printf("e: %ld\n", *e);
+    printf("d: %ld\n", *d);
+    printf("N: %ld\n", *N);
+    return 0;
+//END
+
 
     const char *progname = argv[0];
 
@@ -67,7 +79,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    unsigned long *e,*d, *N;
+   // unsigned long *e, *d, *N;
 
     switch(v) {
         case 0:
@@ -79,4 +91,6 @@ int main(int argc, char** argv) {
     }
 
     printf("Public key: %lu, %lu\n Private key: %lu, %lu\n", *e, *N, *d, *N);
+    return 0;
 }
+
