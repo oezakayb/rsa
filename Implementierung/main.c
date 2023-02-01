@@ -10,13 +10,13 @@ const char* usage_msg =
         "   or: %s -h / --help   Show all options\n";
 
 const char* help_msg =
-        "Optional arguments:\n"
         "  -V X   Runs the chosen version of implementation\n"
-        "       V0: Our Assembler implementation (default)\n"
-        "       V1: Our C implementation\n"
-        "       V2: \n"
-        "       V3: \n"
-        "       V4: \n"
+        "       V0: Assembler implementation (default)\n"
+        "       V1: C implementation with basic RNG\n"
+        "       V2: C implementation with arc4random"
+        "       V3: Assembler implementation with Carmichael instead of Extended-GCD\n"
+        "       V4: C implementation implementation with Carmichael instead of Extended-GCD\n"
+        "       V5: \n"
         "  -B X   The program will run for X times and the total runtime of the given version (if specified) of implementation will be measured\n"
         "       and printed\n"
         "  -h / --help   Show help message (this text) and exit\n";
@@ -31,6 +31,18 @@ void print_help(const char* progname) {
 }
 
 int main(int argc, char** argv) {
+//TESTING
+    unsigned long *e = malloc(sizeof * e);
+    unsigned long *d = malloc(sizeof * d);
+    unsigned long *N = malloc(sizeof * N);
+    get_rsa_params(e, d, N);
+    printf("result:\n");
+    printf("e: %ld\n", *e);
+    printf("d: %ld\n", *d);
+    printf("N: %ld\n", *N);
+    return 0;
+//END
+
 
     const char *progname = argv[0];
 
@@ -67,7 +79,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    unsigned long *e,*d, *N;
+   // unsigned long *e, *d, *N;
 
     switch(v) {
         case 0:
@@ -79,4 +91,6 @@ int main(int argc, char** argv) {
     }
 
     printf("Public key: %lu, %lu\n Private key: %lu, %lu\n", *e, *N, *d, *N);
+    return 0;
 }
+
