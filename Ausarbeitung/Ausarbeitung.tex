@@ -29,6 +29,7 @@ Ein Schlüssel ist ein Tupel. Der öffentliche Schlüssel ist aus dem Tupel (e, 
 \begin{align}
 1 < e < \varphi (N)
 \end{align}
+Außerdem muss e Teilerfrem zu $\varphi $(N) sein. $\varphi $(N) sei die Eulersche $\varphi $-Funktion.
 \begin{align}
 d \cdot e \equiv 1 \mod \varphi (N)
 \end{align}
@@ -39,6 +40,9 @@ c {=} m^e \mod N
 \begin{align}
 m {=} c^d \mod N
 \end{align} 
+An Hand eines Beispiels sehen wir wie die Nachricht m = 10 verschlüsselt wird. Wir wählen für N = 11, e = 3 und d = 0,33333. $\varphi $(11) = 10 und e ist zudem Teilerfremd dazu. Mit (3) ergibt sich die verschlüsselte Nachricht 1000 = 10$^{3}$ $\cdot $ 
+
+
 Der RSA-Algorithmus besteht aus vier Schritten: Schlüsselgenerierung, Schlüsselverteilung, Verschlüsseln und Entschlüsseln. Unsere Aufgabe ist die Generierung der drei Variablen d, e, N zu implementieren. Wir werden mit der Generierung von N anfangen, gehen anschließend darauf ein wie die Variable e gewählt wird und zum Schluss wie man mit Hilfe vom erweiterten Euklidische Algorithmus aus e und $\varphi $ (N) unser d erzeugt.
 
 \section{Lösungsansatz}  
