@@ -1,7 +1,7 @@
 .data
 seed: .quad 0x12345678
-mult: .quad 0x5DEECE66D
-inc: .quad 0xB
+mult: .quad 1664525
+inc: .quad 1013904223
 
 .global get_rsa_params
 .text
@@ -17,33 +17,13 @@ random64bit:
         add x4, x4, x3
         str x4, [x0]
         mov x0, x1
-        lsl x0, x0, 32
-        orr x0, x0, x4
+	mov x0, x0, lsr #32
         ret
 
- pow:
-        cbz x1, .Lret1
-        cbz x0, .Lret0
-
-    .Lpow:
-        mul x0, x0, x0
-        sub x1, x1, 1
-        cmp x1, 1
-        b.ne .Lpow
-        ret
-
-    .Lret1:
-        mov x0, 1
-        ret
-
-    .Lret0:
-        mov x0, 0
-        ret
-
- isprime://combination of naive algorithm
+.Lisprime://naive algorithm
         //x0 is n
         cmp x0, 1 //if (n <= 1) return 0;
-        b.le .Lfalse
+        ble .Lfalse //generate new
 
         cmp x0, 3 //if (n <= 3) return 1;
         b.le .Ltrue
@@ -56,22 +36,29 @@ random64bit:
         mov x2, 3 //if (n % 3 == 0) return 0;
         sdiv x5, x0, x2
         msub x5, x5, x2, x0
-        cbz x0, .Lfalse
+        cbz x5, .Lfalse
 
         mov x2, 5 //i = 5
 
         .Lprep:
+	cmp x2, x0
+	b.eq .Ltrue
+
         sdiv x5, x0, x2
         msub x5, x5, x2, x0
-        cbz x5, .Ltrue
+        cbz x5, .Lfalse
 
         cmp x2, 23 //squareing works after 25
         b.eq .LprepEnd
 
         add x2, x2, 2
+
+	cmp x2, x0
+	b.eq .Ltrue
+
 	sdiv x5, x0, x2
 	msub x5, x5, x2, x0
-	cbz x5, .Ltrue
+	cbz x5, .Lfalse
 
 	add x2, x2, 4
         b .Lprep
@@ -85,7 +72,7 @@ random64bit:
 
    .LforStartNaive:
         mul x3, x2, x2
-        cmp x3, x5
+        cmp x3, x0
         b.gt .Ltrue
 
         sdiv x5, x0, x2
@@ -99,39 +86,23 @@ random64bit:
 
         add x2, x2, 4
         b .LforStartNaive
-//--------------------------------------------------------
-//miller-rabin--------------------------------------------
-//------------------------------------------------------
+
    .Lfalse:
-        mov x0, 0
-        ret
+        sdiv x0, x0, x2
+        b .Lisprime
 
    .Ltrue:
-        ret
+        b .Lgotprime
 
- generateprimes:
+generateprime:
 	str x30, [sp, #-16]!
-   .LwhileStart1:
+
         bl random64bit
-        mov x13, x0
-        bl isprime
-        cbz x0, .LwhileStart1
-
-        mov x15, 0xffffffffffffffff //optimize 2. prime generation
-        udiv x15, x15, x13
-
-   .LwhileStart2:
-        bl random64bit
-        cmp x0, x15
-        b.hi .LwhileStart2
-        mov x14, x0
-        bl isprime
-        cbz x0, .LwhileStart2
-
-        mov x0, x13 //p
-        mov x1, x14 //q
+        b .Lisprime
+ .Lgotprime:
+	//found prime
 	ldr x30, [sp], #16
-        ret
+	ret
 
 //x0 is phi(N)
 //x1 is e
@@ -140,7 +111,7 @@ random64bit:
         mov x8, 0 //loop counter
 	mov x0, x9
 	mov x1, x10
-.Lloop:
+ .Lloop:
         cbz x1, .Lreverse
 
         str x0, [sp, #-16]!
@@ -155,7 +126,7 @@ random64bit:
         b .Lloop
 //part1 - end
 //part2 - begin
-.Lreverse:
+ .Lreverse:
         //check if w0 is 1
         //if yes, then gcd is 1 and continue to newLoop
         //if no, return 0
@@ -165,7 +136,7 @@ random64bit:
         mov x2, 1 //s
         mov x3, 0 //t
 
-.Lnewloop:
+ .Lnewloop:
         mov x1, x0
         ldr x0, [sp], #16
 
@@ -182,37 +153,38 @@ random64bit:
 	msub x3, x4, x9, x3
         b .Lending
 //part2 - end
-.Lretfalse:
+ .Lretfalse:
         //set sp to initial position
         mov x0, #16
         mul x8, x8, x0
         add sp, sp, x8
 
-	add x9, x9, 1
 	b .LrechooseE
 
- get_rsa_params: //(*e, *d, *N)->--calculates and assigns the values
-        //stp x0, x1, [sp, #-16]!
+get_rsa_params: //(*e, *d, *N)->--calculates and assigns the values
 	str x30, [sp, #-16]!
 	str x0, [sp, #-16]!
 	str x1, [sp, #-16]!
         str x2, [sp, #-16]!
-        //bl generateprimes
-	//bl random64bit
 
-	//because generate primes does not work properly, we assume that p = 29, q = 47
-	//therefore phi(N) is 28 * 46 = 1288
+	//generate q
+	bl random64bit
+        bl generateprime
+	mov x13, x0 //x13 == q (move x0 to x13 because we still need to change x0 in the next function)
 
-	mov x0, 11 //p
-	mov x1, 23 //q
+	//generate p
+	bl random64bit
+	bl generateprime
+	//x0 == p
+
+	mov x1, x13 //x1 == q
 	mul x6, x0, x1 //we store N at x6 and save it later in [x2] (we cannot use x6 anymore in other functions)
 
 	sub x0, x0, 1
 	sub x1, x1, 1
-	mul x5, x0, x1 //phi(N) = 1288
+	mul x5, x0, x1
 
 	b .LchooseE //choosing e
-
 
 .Lending:
 	ldr x2, [sp], #16
@@ -246,5 +218,5 @@ random64bit:
 	b .Lextended_euclid
 
  .LrechooseE:
-	add x10, x10, 1
+	add x10, x10, 2
 	b .Lextended_euclid

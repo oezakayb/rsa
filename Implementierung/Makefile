@@ -1,4 +1,4 @@
-CFLAGS = -g -O0
+CFLAGS = -g -O3
 
 all: main
 main: main.c rsa_params.S

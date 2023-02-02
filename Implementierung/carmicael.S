@@ -18,14 +18,11 @@ carmicael:
 
 
         mov w0, w4      //gcd(i,n)
-<<<<<<< HEAD
         mov w1, w2
         b .Lgcd      //if (gcd(i, n) != 1) go to next for loop
-       
-=======
+
 	mov w1, w2
         b .Lgcd      //if (gcd(i, n) != 1) go to next for loop
->>>>>>> a00d965ccabf748c7a38232188578c2359da92e5
 
 .Lcontinue:
         cmp w0, 1
@@ -42,10 +39,6 @@ carmicael:
 
 .LwhileLoop:
         mul w7, w7, w4
-<<<<<<< HEAD
-=======
-
->>>>>>> a00d965ccabf748c7a38232188578c2359da92e5
         udiv w8, w7, w2   
         msub w7, w8, w2, w7
 
@@ -61,10 +54,7 @@ carmicael:
 
         //k = (k*j)/gcd(k,j);
         mul w5, w5, w6
-<<<<<<< HEAD
-=======
 
->>>>>>> a00d965ccabf748c7a38232188578c2359da92e5
         b .Lgcd2
 .Lcontinue2:
         udiv w5, w5, w0
@@ -140,9 +130,3 @@ carmicael:
         b .Lcontinue2
 .Lend3:
         b .Lcontinue2
-<<<<<<< HEAD
-
-
-    
-=======
->>>>>>> a00d965ccabf748c7a38232188578c2359da92e5
