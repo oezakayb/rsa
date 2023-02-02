@@ -1,7 +1,7 @@
 .data
 seed: .quad 0x12345678
-mult: .quad 0x5DEECE66D
-inc: .quad 0xB
+mult: .quad 1664525
+inc: .quad 1013904223
 
 .global get_rsa_params
 .text
@@ -20,7 +20,7 @@ random64bit:
 	mov x0, x0, lsr #32
         ret
 
-.Lisprime://combination of naive algorithm
+.Lisprime://naive algorithm
         //x0 is n
         cmp x0, 1 //if (n <= 1) return 0;
         ble .Lfalse //generate new
