@@ -19,38 +19,41 @@
 \maketitle
 
 \section{Einleitung}
-Das Praktikum Aspekte der systemnahen Programmierung bei der Spieleentwicklung beschäftigt sich mit dem Programmieren von Prozessen auf niedriger Ebene. Dabei ist es wichtig die Schnittstellen zwischen Hardware and Software effectiktive zu nutzen. Man lernt außerdem bei dem Praktikum das Umgehen vom Optimieren von Programmen sowie die Programmiersprache Assembly, AArch64. Assembler ermöglicht die Assemblersprache in Maschinensprache zu übersetzten und das Programmieren in Assembler ermöglicht eine bessere Leistung für das Programm. Diese Verbesserung spielt in vielen Bereciehen der Informatik eine wichtige Rolle.
+Das Praktikum Aspekte der systemnahen Programmierung bei der Spieleentwicklung beschäftigt sich mit dem Programmieren von Prozessen auf niedriger Ebene. Dabei ist es wichtig die Schnittstellen zwischen Hardware and Software effektiv zu nutzen. Man lernt außerdem bei dem Praktikum das Umgehen vom Optimieren von Programmen sowie die Programmiersprache Assembly, AArch64. Assembler ermöglicht die Assemblersprache in Maschinensprache zu übersetzten und das Programmieren in Assembler ermöglicht eine bessere Leistung für das Programm. Diese Verbesserung spielt in vielen Bereichen der Informatik eine wichtige Rolle.
 
-Das Praktikum beinhaltet viele Themengebiete. Eines davon ist die Kryptographie. Kryptographie ist ein essentieller Bestandteil unserer heutigen Kommunikation. Unsere Aufgabe ist es mit dem RSA-Algorithmus zu beschäftigen. Der RSA-Algorithmus wurde im Jahr 1977 zum ersten Mal veröffentlicht und ist nach seinen Erfindern Rivest, Shamir and Adleman ernannt. Die Relevants des Algorithmus hat in der heutigen Zeit nicht nachtgelassen. Er wird in Bereichen wie zum Beispiel bei Banken, Webservern oder E-Mails, für Sicherheit und Datenschutz benutzt. Das Verfahren wird sehr oft für das Kommunikation mit mehreren Teilnehmern verwendet. Das RSA Verfahren gehört zu dem Public-key cryptography, Asymmetrisches Kryptosystem. Dies bedeutet für die Verschlüsselung der Nachricht wird der öffentlichen Schlüssel verwendet und bei der Entschlüsselung den geheimen Schlüssel. 
+Das Praktikum beinhaltet viele Themengebiete. Ein davon ist die Kryptographie. Kryptographie ist ein essentieller Bestandteil unserer heutigen Kommunikation. Unsere Aufgabe ist es mit dem RSA-Algorithmus zu beschäftigen. Der RSA-Algorithmus wurde im Jahr 1977 zum ersten Mal veröffentlicht und ist nach seinen Erfindern Rivest, Shamir und Adleman ernannt. Die Relevantz des Algorithmus hat in der heutigen Zeit nicht nachtgelassen. Er wird in Bereichen wie zum Beispiel bei Banken, Webservern oder E-Mails, für Sicherheit und Datenschutz benutzt. Das Verfahren wird sehr oft für die Kommunikation mit mehreren Teilnehmern verwendet. Das RSA Verfahren gehört zu dem Public-key cryptography, Asymmetrisches Kryptosystem. Dies bedeutet für die Verschlüsselung der Nachricht wird der öffentlichen Schlüssel verwendet und bei der Entschlüsselung der geheimen Schlüssel. 
 
-Ein Beispiel dazu: Person A und Person B wollen mit Hilfe des RSA Verfahrens mit einander kommunizieren. Angenommen alle öffentlichen Schlüssel stehen im Internet. A will eine Nachricht an B verschicken und sucht im Internet den öffentlichen Schlüssel von B herraus. Die Nachricht von A wird anschließend verschlüsselt und an B verschickt. Die verschlüsselte Nachricht kann nur von B verschlüsselt werden, da nur er den geheimen Schlüssel kennt. 
+Ein Beispiel dazu: Person A und Person B wollen mit Hilfe des RSA Verfahrens mit einander kommunizieren. Angenommen alle öffentlichen Schlüssel stehen im Internet. A will eine Nachricht an B verschicken und sucht im Internet den öffentlichen Schlüssel von B heraus. Die Nachricht von A wird anschließend verschlüsselt und an B verschickt. Die verschlüsselte Nachricht kann nur von B verschlüsselt werden, da nur er den geheimen Schlüssel kennt. 
  
-Ein Schlüssel ist ein Tupel. Der öffentliche Schlüssel ist aus dem Tupel (e, N) und der geheimen Schlüssel aus dem Tupel (d, N). Dabei ist e der Verschlüsselungsexponent und d der Entschlüsselungsexponent. Für die Wahl diese Variablen gibt es bestimmten mathematischen Voraussetzungen. 
+Ein Schlüssel ist ein Tupel. Der öffentliche Schlüssel ist aus dem Tupel (e, N) und der geheimen Schlüssel aus dem Tupel (d, N). Dabei ist e der Verschlüsselungsexponent und d der Entschlüsselungsexponent. Für die Wahl dieser Variablen gibt es mehrere mathematischen Voraussetzung. Dabei müssen p und q jeweils Primzahlen sein.
+\begin{align}
+ N = p \cdot q
+\end{align}
 \begin{align}
 1 < e < \varphi (N)
 \end{align}
-Außerdem muss e Teilerfrem zu $\varphi $(N) sein. $\varphi $(N) sei die Eulersche $\varphi $-Funktion.
+Außerdem muss e Teilerfremd zu $\varphi $(N) sein. $\varphi $(N) sei die Eulersche $\varphi $-Funktion.
 \begin{align}
 d \cdot e \equiv 1 \mod \varphi (N)
 \end{align}
-Nach dem man die Schlüssel generiert hat, kann man die Nachricht m mit Hilfe von e und N verschlüsseln und c sei die Verschlüsselte Nachricht. Für die Entschlüsselung wird d verwendet.
+Nachdem man die Schlüssel generiert hat, kann man die Nachricht m mit Hilfe von e und N verschlüsseln und c ist die verschlüsselte Nachricht. Für die Entschlüsselung wird d verwendet.
 \begin{align}
 c {=} m^e \mod N
 \end{align} 
 \begin{align}
 m {=} c^d \mod N
 \end{align} 
-An Hand eines Beispiels sehen wir wie die Nachricht m = 10 verschlüsselt wird. Wir wählen für N = 11, e = 3 und d = 0,33333. $\varphi $(11) = 10 und e ist zudem Teilerfremd dazu. Mit (3) ergibt sich die verschlüsselte Nachricht 1000 = 10$^{3}$ $\cdot $ 
+An Hand eines Beispiels sehen wir wie die Nachricht m = 10 verschlüsselt wird. Wir wählen für N = 1363, e = 3 und d = 859. $\varphi $(1363) = 1288 und e ist zudem Teilerfremd. Mit (4) ergibt sich die verschlüsselte Nachricht 1000 = 10$^{3}$ $\mod $ 1288. Mit unserem geheimen Schlüssel wollen wir anschließend entschlüsseln. 1000$^{859}$ $\mod $ 1288 = m. Mit manueller Kalkulation ist das Ergebnis wie erwartet 10.
 
 
-Der RSA-Algorithmus besteht aus vier Schritten: Schlüsselgenerierung, Schlüsselverteilung, Verschlüsseln und Entschlüsseln. Unsere Aufgabe ist die Generierung der drei Variablen d, e, N zu implementieren. Wir werden mit der Generierung von N anfangen, gehen anschließend darauf ein wie die Variable e gewählt wird und zum Schluss wie man mit Hilfe vom erweiterten Euklidische Algorithmus aus e und $\varphi $ (N) unser d erzeugt.
+Der RSA-Algorithmus besteht aus vier Schritten: Schlüsselgenerierung, Schlüsselverteilung, Verschlüsseln und Entschlüsseln. Unsere Aufgabe ist die Generierung der drei Variablen d, e, N zu implementieren. Wir werden mit der Generierung von N anfangen, gehen anschließend darauf ein wie die Variable e gewählt wird und zum Schluss wie man mit Hilfe von erweiterten Euklidische Algorithmus aus e und $\varphi $ (N) unser d erzeugt.
 
 \section{Lösungsansatz}  
 \subsection*{2.1 Primzahl Generierung }
 Für die Wahl von N werden zwei Primezahl verwendet, p und q.
 
 \subsection*{2.2 Wahl für e }
-Der aller erste RSA- Algorithmus ist aus dem Jahr 1977. Diese Variante wurde ursprünglich so implementiert, dass man einen zufälligen d wählt und daraus e generiert. Allerdings ist diese Methode nicht sicher und e sei zu groß gewählt. Denn bei RSA ist je kleiner der Verschlüsselungsexponent e, desto schneller ist die Verschlüsselung. Eine große Zahl kann aber auch für die Verschlüsselung sehr schnell sein und erfüllt dabei auch die Sicherheit. Für die Wahl von e müssen auf ein paar Voraussetzungen geachtet werden. Der Verschlüsselungsexponent muss größer als eins und kleiner als $\varphi $(N) sein(1). Außerdem muss e coprime zu $\varphi $(N) sein.
+Der allererste RSA- Algorithmus stammt aus dem Jahr 1977. Diese Variante wurde ursprünglich so implementiert, dass man einen zufälligen d wählt und daraus e generiert. Allerdings ist diese Methode nicht sicher und e sei zu groß gewählt. Denn bei RSA ist je kleiner der Verschlüsselungsexponent e, desto schneller ist die Verschlüsselung. Eine große Zahl kann aber auch für die Verschlüsselung sehr schnell sein und erfüllt dabei auch die Sicherheit. Für die Wahl von e müssen auf ein paar Voraussetzungen geachtet werden. Der Verschlüsselungsexponent muss größer als eins, und kleiner als $\varphi $(N) sein(1). Außerdem muss e coprime zu $\varphi $(N) sein.
 
 Damit der RSA- Algorithmus bessere Performance leistet und effizienter ist, muss e eine kürze Bit- Länge und ein kleines Hamming Gewicht haben [1]. Das Hamming Gewicht bei einem String von Bits ist die Anzahl von Einsen. Die Bit Länge gibt die Anzahl an Bits, wenn eine Zahl in Binärschreibweise umgewandelt wird. Um diese Länge einer ganzen Zahl zu bestimmen, wird die folgende Formel verwendet:
 \begin{align}
@@ -70,7 +73,7 @@ Für die Berechnung von $\varphi $(N) wird die Eulersche $\varphi $- Funktion ve
 \begin{align}
 	g^m = 1 \mod n
 \end{align} 
-Dabei ist n der Eingabewert der Funktion. g sind jede Teilerfremde Zahl zu n, welchen in der Funktion berechnet wird. m ist der Rückgabewert. Zur Implementierung der Carmicael Funktion haben wir zunächst die gcd()- Funktion als Hilfsmethode implementiert, welche den größten gemeinsamen Teiler zwischen zwei Zahlen bestimmt. Falls das Ergebnis gleich eins ergibt, dies bedeutet für uns, dass die zwei Zahlen teilerfremd sind und kann somit als g verwendet werden. Die Implementierung des Algorithmus ist aus wenigen Komplexität. Es beinhaltet eine for- Loop, für die Überprüfung von allen teilerfremden Zahlen von n und eine while- Loop, die Überprüft bei welchem Exponenten die Eigenschaft von (6) erfüllt wird. Falls eine teilerfremde Zahl gefunden wird, wird nach dem Bestimmen des Exponenten den Rückgabewert k aktualisiert. Dabei wird das kleinste gemeinsame Vielfache zwischen k und des Exponenten berechnet.
+Dabei ist n der Eingabewert der Funktion. g sind jede Teilerfremde Zahl zu n, welchen in der Funktion berechnet wird. m ist der Rückgabewert. Zur Implementierung der Carmicael Funktion haben wir zunächst die gcd()- Funktion als Hilfsmethode implementiert, welche den größten gemeinsamen Teiler zwischen zwei Zahlen bestimmt. Falls das Ergebnis gleich eins ergibt, heißt die zwei Zahlen sind teilerfremd und kann so als g verwendet werden. Die Implementierung des Algorithmus ist aus wenigen Komplexität. Es beinhaltet eine for- Loop, für die Überprüfung von allen teilerfremden Zahlen die kleiner als n ist und eine while- Loop, die Überprüft bei welchem Exponenten die Eigenschaft von (7) erfüllt wird. Falls eine teilerfremde Zahl gefunden wird, wird nach dem Bestimmen des Exponenten den Rückgabewert k aktualisiert. Dabei wird das kleinste gemeinsame Vielfache zwischen k und des Exponenten berechnet.
 
 \subsection*{2.3 Der erweiterte Euklidische Algorithmus}
 Bevor wir mit dem erweiterten Euklidischen Algorithmus beginnen, sollten wir zunächst verstehen, was der Euklidische Algorithmus bewirkt. Er ist der effizienteste Weg, um den größten gemeinsamen Teiler GCD zwischen zwei Zahlen zu bestimmen. In unserer Aufgabe müssen wir prüfen, ob die obere Schranke phi(N) und unser Verschlüsselungsexponent e teilerfremd sind.
@@ -156,6 +159,11 @@ Das Verfahren was wir implemenmtiert haben wird auch als Textbook RSA genannt. E
 
 
 \section{Zusammenfassung und Ausblick}
+In dieser Projektarbeit hatten wir die Aufgabe mit dem Veerschlüsselungsverfahren RSA, welches in der heutigen Zeit immer noch oft verwendet wird, zu beschäftigen. Dabei sei unsere genaue Aufgabe die Schlüsselgenerierung von RSA in Assembly zu Implemetieren. Neben den ganzen Implementierungen sollen wir außerdem noch ein Rahmenprogramm in C schreiben. Das Rahmenprogramm soll unterschiedlichen Eingabenoptimierungen annehmen, sowie eine Hilfestellung für die Funktionsweise des Programmes. Auch eine Performanzanalyse haben wir durchgeführen müssen. Mit Hilfe davon konnte man festestellen feststellen wie die Laufzeit mit Hilfe vom Assembly Code optimiert werden. 
+
+Für die Implementierung der Schlüsselgenerierung haben wir zunächst das Problem in drei Teile aufgeteilt. Wir haben mit der Variable N angefangen. Dabei sei die schwierigkeit zwei zufällige Primezahl zu generieren. Anschließend kommt die Wahl von e in Frage. Zum     
+
+%\section{Literatur}
 
 % TODO: Fuegen Sie Ihre Quellen der Datei Ausarbeitung.bib hinzu
 % Referenzieren Sie diese dann mit \cite{}.
