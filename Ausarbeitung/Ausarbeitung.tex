@@ -68,12 +68,24 @@ Die meisten gewählten Zahlen für e sind 65537 und 3. 65537 ist groß genug und
 
 Bei unsere Implementierung haben wir zunächst geschaut ob unsere $\varphi $(N) größer ist als 65537 oder ob 65537 kleiner gleich $\varphi $(N) ist. Falls es kleiner gleich ist, wird e = 3 gesetzt. Im anderen Fall ist e = 65537.
 \subsection*{2.2.1 Camicael Funktion} 
-Für die Berechnung von $\varphi $(N) wird die Eulersche $\varphi $- Funktion verwendet. Die $\varphi $ Funktion gibt die obere Schranke für e an. Es gibt neben der Eulersche $\varphi $- Funktion noch eine weitere Funktion, um die obere Schranke für e bestimmt, die Carmicael Funktion, auch $\lambda $- Funktion genannt. Diese Funktion berechnet den kleinsten positiven Quotienten der $\varphi $- Funktion aus und optimiert somit die obere Grenze. So kann e möglichst klein gewählt werden. Je kleiner e, desto schneller ist die Verschlüsselung. Die Formel für die Carmicael- Funktion sieht wie folgt aus:
+Für die Berechnung von $\varphi $(N) wird die Eulersche $\varphi $- Funktion verwendet. Die $\varphi $ Funktion gibt die obere Schranke für e an. Es gibt neben der Eulersche $\varphi $- Funktion noch eine weitere Funktion, um die obere Schranke für e bestimmt, die Carmicael Funktion, auch $\lambda $- Funktion genannt. Diese Funktion berechnet den kleinsten positiven Quotienten der $\varphi $- Funktion aus und optimiert somit die obere Grenze. In der unteren Graphik kann man sehen, dass der Wert von $\lambda $(N) ist in den meisten Fällen kleiner ist als  $\varphi $(N). So kann e möglichst klein gewählt werden. Je kleiner e, desto schneller ist die Verschlüsselung. 
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.6]{CarmichaelLambda.png}
+\caption{Vergleich zwischen $\varphi $(N) und $\lambda $(N)}
+\end{figure}
+
+Die Formel für die Carmicael- Funktion sieht wie folgt aus:
 \begin{align}
 	g^m = 1 \mod n
 \end{align} 
-Dabei ist n der Eingabewert der Funktion. g sind alle teilerfremden Zahl zu n, welchen in der Funktion berechnet werden. m ist der Rückgabewert. Zur Implementierung der Carmicael Funktion haben wir zunächst die gcd()- Funktion als Hilfsmethode implementiert, welche den größten gemeinsamen Teiler zwischen zwei Zahlen a und b bestimmt. Falls das Ergebnis gleich eins ergibt, bedeutet dies, dass beide Zahlen teilerfremd sind und a kann so als g verwendet werden. Die Implementierung des Algorithmus ist einfach gehalten. Sie beinhaltet einen for- Loop, für die Überprüfung von allen teilerfremden Zahlen die kleiner als n sind und einen while- Loop, der Überprüft bei welchem Exponenten die Eigenschaft von (7) erfüllt wird. Falls eine teilerfremde Zahl gefunden wird, wird nach dem Bestimmen des Exponenten der Rückgabewert k aktualisiert. Dabei wird das kleinste gemeinsame Vielfache zwischen k und dem Exponenten berechnet.
+Dabei ist n der Eingabewert der Funktion. g sind alle teilerfremden Zahl zu n, welchen in der Funktion berechnet werden. m ist der Rückgabewert. Zur Implementierung der Carmicael Funktion haben wir zunächst die gcd()- Funktion als Hilfsmethode implementiert, welche den größten gemeinsamen Teiler zwischen zwei Zahlen a und b bestimmt. Falls das Ergebnis gleich eins ergibt, bedeutet dies, dass beide Zahlen teilerfremd sind und a kann so als g verwendet werden. Die Implementierung des Algorithmus ist einfach gehalten. Sie beinhaltet einen for- Loop, für die Überprüfung von allen teilerfremden Zahlen die kleiner als n sind und einen while- Loop, der Überprüft bei welchem Exponenten die Eigenschaft von (7) erfüllt wird. Falls eine teilerfremde Zahl gefunden wird, wird nach dem Bestimmen des Exponenten der Rückgabewert k aktualisiert. Dabei wird das kleinste gemeinsame Vielfache zwischen k und dem Exponenten berechnet. 
 
+So war die eigentliche Implementierung. Jedoch sind wir bei dieser Art von Implementierung auf ein Problem gestoßen, denn es funktioniert nur für kleine Zahl, in eine Größenordnung von sechs. Deshalb haben wir letztendlich für eine andere Implementierungsvariante der $\lambda $ Funktion entschieden, mit der folgende Formel:
+\begin{align}
+	\lambda(N) = \frac{{p-1}\cdot{q-1}}{gcd(p-1, q-1)}
+\end{align} 
+Diese Implementierung nimmt die zwei Parameter p und q als Eingabe und berechnet mit Hilfe von der gcd- Funktion den $\lambda $ Wert. Die andere Implementierung dient ledigtlich nur als Hilfe und wird im richtigen Code nicht verwendet.
 \subsection*{2.3 Der erweiterte Euklidische Algorithmus}
 Bevor wir mit dem erweiterten Euklidischen Algorithmus beginnen, sollten wir zunächst verstehen, was der Euklidische Algorithmus bewirkt. Er ist der effizienteste Weg, um den größten gemeinsamen Teiler GCD zwischen zwei Zahlen zu bestimmen. In unserer Aufgabe müssen wir prüfen, ob die obere Schranke phi(N) und unser Verschlüsselungsexponent e teilerfremd sind. Die grundlegende Idee des Euklidischen Algorithmus ist, dass man den größten gemeinsamen Teiler zwischen zwei Zahlen bestimmt. Das Verfahren ist wie folgt:
 \begin{itemize}
@@ -138,7 +150,7 @@ Die Variable e ist uns bereits bekannt. Der schwierige Teil liegt wesentlich dar
 Bei unsere Implementierung ist unser N auf 19 Stellen eingeschränkt. Deshalb sind unsere Schlüssel unsicher und N kann sehr mit schnell mit der Primfaktorzerlegungsalgorithmus in zwei Primzahlen zerlegt werden.
  
 Ein weiterer Punkt wovon die Sicherheit von RSA auch abhängig ist, ist die Wahl von e. In Sektion 2.3 wurde erwähnt, dass die kleinste Zahl für e die Drei ist. Auch wenn der Verschlüsselungsexponent bei keinere Zahlen sehr schnell verläuft, ist die Sicherheit nicht vielversprechend. Im Fall, dass $m^{e}$ kleiner als N ist und auch wenn die Verschlüsselung der Nachricht sehr schnell verläfut, bedeutet es mit großen Wahrscheinlichkeit, dass der Verschlüsselungsexponent eine kleine Zahl, meistens die Drei ist. Solcher Angriff wird auch als Timing Attack genannt. Der Angreifer benutzt die Zeit für die Verschlüsselung der Nachricht, um Informationen über den Verschlüsselungsprozess zugewinnen. 
-Das Verfahren was wir implementiert haben wird auch Textbook RSA genannt. Es ist RSA ohne Padding. Das Verfahren verwendet viele mathematische Operationen und kann zu manchen Schwächen führen. Um diese zu vermeiden wird das Padding für RSA hinzugefügt.  Ein sehr häufig verwendetes Padding Verfahren für RSA ist das "optimal asymmetric encryption padding". 
+Das Verfahren was wir implementiert haben wird auch Textbook RSA genannt. Es ist RSA ohne Padding. Das Verfahren verwendet viele mathematische Operationen und kann zu manchen Schwächen führen. Um diese zu vermeiden wird das Padding für RSA hinzugefügt.  Ein sehr häufig verwendetes Padding Verfahren für RSA ist das "optimal asymmetric encryption padding". \cite{AttacksOnRSA}
 
 
 
@@ -155,7 +167,8 @@ In dieser Projektarbeit hatten wir die Aufgabe mit dem Verschlüsselungsverfahre
 
 Für die Implementierung der Schlüsselgenerierung haben wir zunächst das Problem in drei Teile aufgeteilt. Wir haben mit der Variable N angefangen. Dabei sei die schwierigkeit zwei zufällige Primezahl zu generieren. Anschließend kommt die Wahl von e in Frage. Zum musst noch festgelegt werden, welche Zahl d ist. Mit dem Verfahren von EEA kann man aus e und N die Variable d herleiten. 
 
-
+\section{Bildequellen}
+Abbilldung 1: \url{https://en.wikipedia.org/wiki/Carmichael_function#/media/File:CarmichaelLambda.svg}(03.02.2023)
 
 % TODO: Fuegen Sie Ihre Quellen der Datei Ausarbeitung.bib hinzu
 % Referenzieren Sie diese dann mit \cite{}.
