@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <getopt.h>
-
-#include "rsa_params.h"
+#include "rsa_params_v0.h"
 
 const char* usage_msg =
         "Usage: %s [options]   Prints out the public and private key pairs. Try -h to see the options\n"
@@ -82,4 +81,3 @@ int main(int argc, char** argv) {
     printf("Public key: %lu, %lu\n Private key: %lu, %lu\n", *e, *N, *d, *N);
     return 0;
 }
-
