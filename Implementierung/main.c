@@ -71,60 +71,62 @@ int main(int argc, char** argv) {
         }
     }
 
-    unsigned long *e = malloc(sizeof * e);
-    unsigned long *d = malloc(sizeof * d);
-    unsigned long *N = malloc(sizeof * N);
+    unsigned long *e = malloc(sizeof *e);
+    unsigned long *d = malloc(sizeof *d);
+    unsigned long *N = malloc(sizeof *N);
+    unsigned int *seed = malloc(sizeof seed);
+    *seed = 0x12345678;
 
     if(bbool){
         switch(v) {
             case 1:
-                {
-                    struct timespec start;
-                    clock_gettime(CLOCK_MONOTONIC, &start);
-                    for (int i = 0; i < b; ++i) {
-                        get_rsa_params_v1(e, d, N);
-                    }
-                    struct timespec end;
-                    clock_gettime(CLOCK_MONOTONIC, &end);
-                    double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
-                    double average = time / b;
-                    printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.",
-                           time, b, average);
+            {
+                struct timespec start;
+                clock_gettime(CLOCK_MONOTONIC, &start);
+                for (int i = 0; i < b; ++i) {
+                    get_rsa_params_v1(e, d, N, seed);
                 }
+                struct timespec end;
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
+                double average = time / b;
+                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.\n",
+                       time, b, average);
+            }
 
-                    break;
+                break;
 
             case 2:
-                {
-                    struct timespec start;
-                    clock_gettime(CLOCK_MONOTONIC, &start);
-                    for (int i = 0; i < b; ++i) {
-                        get_rsa_params_v2(e, d, N);
-                    }
-                    struct timespec end;
-                    clock_gettime(CLOCK_MONOTONIC, &end);
-                    double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
-                    double average = time / b;
-                    printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.",
-                           time, b, average);
+            {
+                struct timespec start;
+                clock_gettime(CLOCK_MONOTONIC, &start);
+                for (int i = 0; i < b; ++i) {
+                    get_rsa_params_v2(e, d, N, seed);
                 }
+                struct timespec end;
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
+                double average = time / b;
+                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.\n",
+                       time, b, average);
+            }
 
                 break;
 
             case 3:
-                {
-                    struct timespec start;
-                    clock_gettime(CLOCK_MONOTONIC, &start);
-                    for (int i = 0; i < b; ++i) {
-                        get_rsa_params_v3(e, d, N);
-                    }
-                    struct timespec end;
-                    clock_gettime(CLOCK_MONOTONIC, &end);
-                    double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
-                    double average = time / b;
-                    printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.",
-                           time, b, average);
+            {
+                struct timespec start;
+                clock_gettime(CLOCK_MONOTONIC, &start);
+                for (int i = 0; i < b; ++i) {
+                    get_rsa_params_v3(e, d, N);
                 }
+                struct timespec end;
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
+                double average = time / b;
+                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.\n",
+                       time, b, average);
+            }
 
                 break;
 
@@ -139,36 +141,36 @@ int main(int argc, char** argv) {
                 clock_gettime(CLOCK_MONOTONIC, &end);
                 double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
                 double average = time / b;
-                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.",
+                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.\n",
                        time, b, average);
             }
 
                 break;
 
             default:
-                {
-                    struct timespec start;
-                    clock_gettime(CLOCK_MONOTONIC, &start);
-                    for (int i = 0; i < b; ++i) {
-                        get_rsa_params(e, d, N);
-                    }
-                    struct timespec end;
-                    clock_gettime(CLOCK_MONOTONIC, &end);
-                    double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
-                    double average = time / (double) b;
-                    printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.", time, b, average);
+            {
+                struct timespec start;
+                clock_gettime(CLOCK_MONOTONIC, &start);
+                for (int i = 0; i < b; ++i) {
+                    get_rsa_params(e, d, N);
                 }
+                struct timespec end;
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
+                double average = time / (double) b;
+                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.\n", time, b, average);
+            }
                 break;
 
         }
     }else{
         switch(v) {
             case 1:
-                get_rsa_params_v1(e, d, N);
+                get_rsa_params_v1(e, d, N, seed);
                 break;
 
             case 2:
-                get_rsa_params_v2(e, d, N);
+                get_rsa_params_v2(e, d, N, seed);
                 break;
 
             case 3:
@@ -185,6 +187,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("Public key: %lu, %lu\n Private key: %lu, %lu\n", *e, *N, *d, *N);
+    printf("Public key: %lu, %lu\nPrivate key: %lu, %lu\n", *e, *N, *d, *N);
     return 0;
 }
