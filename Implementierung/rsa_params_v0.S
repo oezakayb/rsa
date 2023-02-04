@@ -6,7 +6,7 @@ inc: .quad 1013904223
 .global get_rsa_params
 .text
 
-random3bit:
+random32bit:
         ldr x0, =seed
         ldr x1, [x0]
         ldr x2, =mult
@@ -17,7 +17,7 @@ random3bit:
         add x4, x4, x3
         str x4, [x0]
         mov x0, x1
-	mov x0, x0, lsr #32
+	    mov x0, x0, lsr #32
         ret
 
 .Lisprime://naive algorithm
@@ -97,9 +97,8 @@ random3bit:
 generateprime:
 	str x30, [sp, #-16]!
 
-        bl random32
-      bit
-        b .Lisprime
+    bl random32bit
+    b .Lisprime
  .Lgotprime:
 	//found prime
 	ldr x30, [sp], #16

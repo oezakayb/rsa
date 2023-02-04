@@ -2,7 +2,7 @@
 
 #include "rsa_params_v1.h"
 
-unsigned int* seed = 0x12345678;
+unsigned int* seed = (int*)0x12345678;
 unsigned int mul = 1664525;
 unsigned int inc = 1013904223;
 
@@ -19,7 +19,7 @@ void compute_d(unsigned long N, unsigned long e, signed long* s, signed long* t)
 }
 
 unsigned int random32bit(){
-    *seed = (*seed * mul + inc) % (2 << 32);
+    *seed = (*seed * mul + inc) % ((unsigned long)2 << 32);
     return *seed;
 }
 
@@ -42,9 +42,16 @@ unsigned int find_prime(unsigned long n){
     return n;
 }
 
+unsigned int calculateE();
+
 void get_rsa_params_v1(unsigned long *e, unsigned long *d, unsigned long *N){
     unsigned int p = random32bit();
-    if(is_prime(p) != 1) {
+    p = find_prime(p);
+    unsigned int q = random32bit();
+    q = find_prime(q);
 
-    }
+    *N = p * q;
+
+    unsigned long phiN = (p - 1) * (q - 1);
+
 }
