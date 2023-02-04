@@ -8,6 +8,7 @@
 #include "rsa_params_v1.h"
 #include "rsa_params_v2.h"
 #include "rsa_params_v3.h"
+#include "rsa_params_v4.h"
 
 
 const char* usage_msg =
@@ -98,7 +99,7 @@ int main(int argc, char** argv) {
                     struct timespec start;
                     clock_gettime(CLOCK_MONOTONIC, &start);
                     for (int i = 0; i < b; ++i) {
-                        get_rsa_params(e, d, N);
+                        get_rsa_params_v2(e, d, N);
                     }
                     struct timespec end;
                     clock_gettime(CLOCK_MONOTONIC, &end);
@@ -115,7 +116,7 @@ int main(int argc, char** argv) {
                     struct timespec start;
                     clock_gettime(CLOCK_MONOTONIC, &start);
                     for (int i = 0; i < b; ++i) {
-                        get_rsa_params(e, d, N);
+                        get_rsa_params_v3(e, d, N);
                     }
                     struct timespec end;
                     clock_gettime(CLOCK_MONOTONIC, &end);
@@ -124,6 +125,23 @@ int main(int argc, char** argv) {
                     printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.",
                            time, b, average);
                 }
+
+                break;
+
+            case 4:
+            {
+                struct timespec start;
+                clock_gettime(CLOCK_MONOTONIC, &start);
+                for (int i = 0; i < b; ++i) {
+                    get_rsa_params_v4(e, d, N);
+                }
+                struct timespec end;
+                clock_gettime(CLOCK_MONOTONIC, &end);
+                double time = end.tv_sec - start.tv_sec + 1e-9 * (end.tv_nsec - start.tv_nsec);
+                double average = time / b;
+                printf("It took a total of %lf seconds to generate the keys for %d times with an average of %lf.",
+                       time, b, average);
+            }
 
                 break;
 
@@ -154,6 +172,10 @@ int main(int argc, char** argv) {
                 break;
 
             case 3:
+                get_rsa_params_v3(e, d, N);
+                break;
+
+            case 4:
                 get_rsa_params_v3(e, d, N);
                 break;
 

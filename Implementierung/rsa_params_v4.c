@@ -1,4 +1,4 @@
-#include "rsa_params_v3.h"
+#include "rsa_params_v4.h"
 
 unsigned int gcd(unsigned int a, unsigned int b) {
     if (b == 0) {
@@ -12,7 +12,7 @@ unsigned long carmichael(unsigned int p, unsigned int q) {
     return (p - 1) * (q - 1) / gcd(p - 1, q - 1);
 }
 
-void get_rsa_params_v3(unsigned long *e, unsigned long *d, unsigned long *N){
+void get_rsa_params_v4(unsigned long *e, unsigned long *d, unsigned long *N){
 
 }
 
