@@ -6,7 +6,7 @@ inc: .quad 1013904223
 .global get_rsa_params
 .text
 
-random64bit:
+random3bit:
         ldr x0, =seed
         ldr x1, [x0]
         ldr x2, =mult
@@ -97,7 +97,8 @@ random64bit:
 generateprime:
 	str x30, [sp, #-16]!
 
-        bl random64bit
+        bl random32
+      bit
         b .Lisprime
  .Lgotprime:
 	//found prime
@@ -168,12 +169,12 @@ get_rsa_params: //(*e, *d, *N)->--calculates and assigns the values
         str x2, [sp, #-16]!
 
 	//generate q
-	bl random64bit
+	bl random32bit
         bl generateprime
 	mov x13, x0 //x13 == q (move x0 to x13 because we still need to change x0 in the next function)
 
 	//generate p
-	bl random64bit
+	bl random32bit
 	bl generateprime
 	//x0 == p
 
