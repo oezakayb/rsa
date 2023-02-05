@@ -21,7 +21,7 @@
 \section{Einleitung}
 Das Praktikum Aspekte der systemnahen Programmierung bei der Spieleentwicklung beschäftigt sich mit dem Programmieren von Prozessen auf niedriger Ebene. Dabei ist es wichtig die Schnittstellen zwischen Hardware and Software effektiv zu nutzen. Außerdem haben wir uns den Umgang mit der Assembly Programmiersprache AArch64 angeeignet und damit verbunden diverse Optimierungsmöglichkeiten für diese. Assembler ermöglicht die Assemblysprache in Maschinensprache zu übersetzten.Der Vorteil an einer derart Hardware-Nahen Programmierung ist, dass man eine viel bessere Leistung für seine Programme erzielen kann, da man angepasste Optimierungen treffen kann, zu welchen ein normaler Compiler aus einer Hochsprache nicht fähig ist. Diese Verbesserung spielt in vielen Bereichen der Informatik eine wichtige Rolle.
 
-Das Praktikum bietet eine Vielzahl an Themengebiete. Eines davon, welchem wir uns gewidmet haben, ist die sogenannte Kryptographie. Kryptographie ist ein essentieller Bestandteil unserer heutigen Kommunikation. Einer der Algorithmen, der unter dem Fachgebiet der Kryptographie zum Einsatz kommt ist der RSA-Algorithmus. Der RSA-Algorithmus wurde im Jahr 1977 zum ersten Mal veröffentlicht und ist nach seinen Erfindern Rivest, Shamir und Adleman benannt. Die Relevanz des Algorithmus hat in der heutigen Zeit nicht nachtgelassen. Er wird in verschiedenen Bereichen wie zum Beispiel bei Banken, Webservern oder E-Mails, für Sicherheit und Datenschutz angewendet. Das Verfahren wird sehr oft für die Verschlüsselung der Kommunikation mit mehreren Teilnehmern genutzt. Dabei kommen zwei Schlüssel zum Einsatz, ein öffentlicher und ein privater Schlüssel. 
+Das Praktikum bietet eine Vielzahl an Themengebiete. Eines davon, welchem wir uns gewidmet haben, ist die sogenannte Kryptographie. Kryptographie ist ein essentieller Bestandteil unserer heutigen Kommunikation. Einer der Algorithmen, der unter dem Fachgebiet der Kryptographie zum Einsatz kommt ist der RSA-Algorithmus. Der RSA-Algorithmus wurde im Jahr 1977 zum ersten Mal veröffentlicht und ist nach seinen Erfindern Rivest, Shamir und Adleman benannt. Die Relevanz des Algorithmus hat in der heutigen Zeit nicht nachtgelassen. Er wird in verschiedenen Bereichen wie zum Beispiel bei Banken, Webservern oder E-Mails, für Sicherheit und Datenschutz angewendet. Das Verfahren wird sehr oft für die Verschlüsselung der Kommunikation mit mehreren Teilnehmern genutzt. Dabei kommen zwei Schlüssel zum Einsatz, ein öffentlicher und ein privater Schlüssel. \cite{TTheRSAAlgorithm}
 
 Ein Beispiel dazu: Person A und Person B wollen mit Hilfe des RSA Verfahrens mit einander kommunizieren. Angenommen alle öffentlichen Schlüssel stehen im Internet. A will eine Nachricht an B verschicken und sucht im Internet den öffentlichen Schlüssel von B heraus. Die Nachricht von A wird anschließend verschlüsselt und an B verschickt. Die verschlüsselte Nachricht kann nur von B entschlüsselt werden, da nur er den geheimen Schlüssel kennt. 
  
@@ -53,7 +53,28 @@ Der RSA-Algorithmus besteht aus vier Schritten: Schlüsselgenerierung, Schlüsse
 
 \section{Lösungsansatz}  
 \subsection*{2.1 Primzahl Generierung }
-Für die Wahl von N werden zwei Primezahl verwendet, p und q.
+Für das Generieren von Modulo N braucht man zwei Primzahlen p und q. Aus deren Produkt entsteht wie in der Formel (1) zu sehen N. Es gibt verschiedene Methoden zur Generierung von Primzahlen. Da unsere Primzahlen maxmial 64bit sein können, haben wir die naive Methode gewählt, also wir rechnen eine zufällige Zahl und checken, ob es eine Primzahl ist. Diesen Teil kann man in drei verschiedenen Aspekten untersuchen:
+
+\begin{itemize}
+\item 
+Generierung der Zufallszahlen:
+
+Es werden normalerweise kryptographische Zufallszahlgeneratoren empfohlen, es ist aber schwierig in Assembly eines zu implementieren. Deshalb haben wir uns einen kleinen linearen Kongruenzgenerator programmiert. Er nimmt einen Seedwert als Adresse der Eingabe und nutzt die Multiplikations- und Additionswerte aus Donald Knuths Buch “Numerical Recipes”. Der Generatorseed ist [0x12345678], der Multiplikator 1664525 und der Umwachs 1013904223. In C-Implementierungen gibt es nur den Unterschied, dass der Seed 0 ist.
+
+Man muss es aber erwähnen, dass die Pseudo-Zufälligkeit die ganze Algorithmus unsicher macht. In C könnte man einen kryptographischen Generator wie arc4random nutzen, für Vergleichungszwecke haben wir dies aber nicht getan.
+
+Des weiteren haben wir die Zufallszahl mit 32bit begrenzt, da bei 64bit die erste Zahl mit 50\% Wahrscheinlichkeit zwischen 63bit und 64bit ist. Das bringt die Voraussetzung, dass die zweite Zahl relativ sehr klein ausgewählt werden muss. Im Praxis wird das aber wegen kleiner Wahrscheinlichkeit fast nie passieren und damit ist eine sehr lange Laufzeit zu rechnen.
+
+\item 
+Die Primecheck-Algorithmus:
+
+Bei der Primecheck-Algorithmus haben wir auch die kleine Bit-Länge der p und q ausgenutzt und die naive Algorithmus implementiert. Nachdem man für 2 und 3 checkt und die Vielfachen von 2 und 3 eliminiert, geht man alle 6n +-1 bis zum Wurzel der jeweilgen Zahl durch und überprüft ob die Zahl durch den dividierbar ist. Da beim Praktikum in der Haupt-Assembly-Implementierung keine komplexe arithmetische Funktionen wie sqrt(n) erlaubt sind, haben wir einen Umweg gefunden. Statt der Wurzel checkt man, ob die (6n +- 1)$^{2}$ kleiner als der zu überprüfenden Zahl ist. Man rechnet also $\sqrt{p}$- oder $\sqrt{1}$-mal die (6n +- 1)$^{2}$, während man die Wurzeln nur ein Mal rechnen könnte. Obwohl klein, sieht man den Unterschied im Teil Performanzanalyse.
+
+\item 
+Verhalten bei zusammengesetzten Zahlen:
+	
+Um die Laufzeit möglichst kurz zu halten, akzeptiert das Programm alle Zufallszahlen außer 1. Wenn die Zahl keine Primzahl ist, wird sie faktorisiert und die größte unidentische Zahl wird als Primzahl gewählt. Obwohl das den Zufallsfaktor nicht verletzt, modifiziert es die Wahrscheinlichkeitszuordnung verschiedener Primzahlen. Für uns ist dieses Trade-Off akzeptabel.
+\end{itemize}
 
 \subsection*{2.2 Wahl für e }
 Der allererste RSA- Algorithmus stammt aus dem Jahr 1977. Diese Variante wurde ursprünglich so implementiert, dass man ein zufälliges d wählt und daraus e generiert. Allerdings ist diese Methode nicht sicher und e würde zu groß sein. Je kleiner bei diesem Algorithmus der Verschlüsselungsexponent e ist, desto schneller ist die Verschlüsselung. Eine große Zahl ist für die Verschlüsselung dennoch performant genug und erfüllt dabei auch die Sicherheitsanforderungen. Für die Wahl von e muss auf ein paar Voraussetzungen geachtet werden. Der Verschlüsselungsexponent muss größer als eins, und kleiner als $\varphi $(N) sein(1). Außerdem muss e teilerfremd zu $\varphi $(N) sein.
@@ -68,11 +89,11 @@ Der Grund für eine Verbesserung der Implementierung bei einem Verschlüsselungs
  \item [2.] Weniger Modulo Reduktion: Nach der Berechnung von $m^{e}$ wird die Operation Modulo N ausgeführt. Wenn e eine kurze Bit Länge hat, so muss weniger Modulo Reduktionen durchgeführt werden. Eine Potenz Modulo Berechnung hat eine Zeitkomplexität von O(log y). Dabei sei y der Exponent.   
  \item [3.] Kleineres Hamming Gewicht: Ein kleineres Hamming Gewicht bedeutet, dass die Zahl in der Bit- Schreibweise mehr Null- Bits hat. Dies spart ebenfalls Rechenaufwand bei der Potenzrechnung und der Modulo Operation.
 \end{itemize}
-Die meisten gewählten Zahlen für e sind 65537 und 3. 65537 ist groß genug und kann für die Sicherheit der Verschlüsselung sorgen. Zudem hat diese Zahl ein kleines Hammning Gewicht, in Binärschreibweis 0b10000000000000001. Die kleinste Zahl für e ist die drei. Drei hat ein Hamming Gewicht von zwei, 0b11, und ist somit für die Verschlüsselung sehr schnell. Allerdings ist die Verwendung diese Zahl nicht sicher für das RSA- Verfahren. %%%%%%%%%warum wird drei verwendet 
+Die meisten gewählten Zahlen für e sind 65537 und 3. 65537 ist nicht nur groß genug sondern auch Primzahl und kann für die Sicherheit der Verschlüsselung sorgen. Zudem hat diese Zahl ein kleines Hammning Gewicht, in Binärschreibweis 0b10000000000000001. Die kleinste Zahl für e ist die drei. Drei hat ein Hamming Gewicht von zwei, 0b11, und ist somit für die Verschlüsselung sehr schnell. Allerdings ist die Verwendung diese Zahl nicht sicher für das RSA- Verfahren. %%%%%%%%%warum wird drei verwendet 
 
-Bei unsere Implementierung haben wir zunächst geschaut ob unsere $\varphi $(N) größer ist als 65537 oder ob 65537 kleiner gleich $\varphi $(N) ist. Falls es kleiner gleich ist, wird e = 3 gesetzt. Im anderen Fall ist e = 65537.
+Bei unsere Implementierung haben wir zunächst geschaut ob unsere $\varphi $(N) größer ist als 65537 oder ob 65537 kleiner gleich $\varphi $(N) ist. Falls es kleiner gleich ist, wird e = 3 gesetzt. Im anderen Fall ist e = 65537. Falls allerdings e nicht teilerfremd zu $\varphi $(N) ist , addieren wir e mit 2 und prüfen es erneut, ob e teilerfremd zu $\varphi $(N) ist.
 \subsection*{2.2.1 Camicael Funktion} 
-Für die Berechnung von $\varphi $(N) wird die Eulersche $\varphi $- Funktion verwendet. Die $\varphi $ Funktion gibt die obere Schranke für e an. Es gibt neben der Eulersche $\varphi $- Funktion noch eine weitere Funktion, um die obere Schranke für e bestimmt, die Carmicael Funktion, auch $\lambda $- Funktion genannt. Diese Funktion berechnet den kleinsten positiven Quotienten der $\varphi $- Funktion aus und optimiert somit die obere Grenze. In der unteren Graphik kann man sehen, dass der Wert von $\lambda $(N) ist in den meisten Fällen kleiner ist als  $\varphi $(N). So kann e möglichst klein gewählt werden. Je kleiner e, desto schneller ist die Verschlüsselung. 
+Für die Berechnung von $\varphi $(N) wird die Eulersche $\varphi $- Funktion verwendet. Die $\varphi $ Funktion gibt die obere Schranke für e an. Es gibt neben der Eulersche $\varphi $- Funktion noch eine weitere Funktion, um die obere Schranke für e bestimmt, die Carmicael Funktion, auch $\lambda $- Funktion genannt. Diese Funktion berechnet den kleinsten positiven Quotienten der $\varphi $- Funktion aus und optimiert somit die obere Grenze. In der unteren Graphik kann man sehen, dass der Wert von $\lambda $(N) ist in den meisten Fällen kleiner ist als  $\varphi $(N). So kann e möglichst klein gewählt werden. Je kleiner e, desto schneller ist die Verschlüsselung. \cite{Carmicael}
 \begin{figure}[h]
 \centering
 \includegraphics[scale = 0.6]{CarmichaelLambda.png}
@@ -99,7 +120,7 @@ Bevor wir mit dem erweiterten Euklidischen Algorithmus beginnen, sollten wir zun
 \end{itemize}
 Wie der Name schon verrät, ist der erweiterte Euklidische Algorithmus eine Erweiterung des ursprünglichen Euklidischen Algorithmus. Beide Verfahren berechnen den GCD zwischen zwei ganzen Zahlen. Der erweiterte Algorithmus gibt uns außerdem noch den Koeffizienten der Bezout-Identität an. Es sind zwei ganze Zahlen x und y und stehen wie folgt im Zusammenhang:
 \begin{align}
-	ax + by = gcd(a, b)
+	a\cdot x + b\cdot y = gcd(a, b)
 \end{align} 
 Wenn man die zwei Variable a und b hat, kann man x und y mit Hilfe von modulo multiplikative Inverse berechnen.
 
@@ -108,15 +129,15 @@ Die Implementierung vom EEA funktioniert wie folgt. Wir initialisieren zuerst x 
 	x_{new} = y, y_{new} = x - (floor(r/s)) \cdot y
 \end{align} 
 Die Variablen r und s sind Reste und Divisor des euklidischen Algorithmus. Die Funktion floor() gibt die größte Zahl, die kleiner als der Eingabewert ist, zurück. 
-Wenn der euklidische Algorithmus terminiert, erhälten man das Ergebnis von GCD und die zwei Koeffizienten der Bezout-Identität, x und y. Für die Modulo Inverse von a $\mod$ b kann man mit Hilfe von x $\mod$ b berechnen, falls gcd(a,b) = 1 ist. Im anderen Fall gibt es keine Modulo Inverse.
+Wenn der euklidische Algorithmus terminiert, erhälten man das Ergebnis von GCD und die zwei Koeffizienten der Bezout-Identität, x und y.\cite{ExtendedEuclideanAlgorithm} Für die Modulo Inverse von a $\mod$ b kann man mit Hilfe von x $\mod$ b berechnen, falls gcd(a,b) = 1 ist. Im anderen Fall gibt es keine Modulo Inverse.
  
 In unsere Aufgabe sieht die Gleichung folgendermaßen aus:
 \begin{align}
-	ed + \varphi (N)y = gcd(e, \varphi(N)) = 1
+	e\cdot d + \varphi (N)\cdot y = gcd(e, \varphi(N)) = 1
 \end{align}
 Mit Hilfe des EEAs und den bekannten öffentlichen Schlüssel (e, N) wollen wir nun den privaten Schlüssel (d, N) berechnen. Mit einer Umformung ergibt sich: 
 \begin{align}	
-	ed = 1 mod (\varphi(N))
+	e\cdot d \equiv 1 \mod (\varphi(N))
 \end{align}
 Lässt sich auch d aus e und $\varphi $ (N) bestimmen. Wir können den EEA nicht nur für die Berechnung von GCD zwischen e und $\varphi $(N) verwenden, sondern auch die Modulo Inverse vom öffentlichen Schlüssel. Wobei das Ergebnis den privaten Schlüssel d ergbit.
 
@@ -127,9 +148,9 @@ Bereits bei dem EEA-Teil haben wir die Formel ed = 1 mod $\varphi $(n) vorgestel
 \end{align}
 Dabei sei $\varphi $(N) wie folgt definiert:
 \begin{align}
-	\varphi (n) = \varphi (p)\varphi (q) = (p-1) \cdot (q-1), n = p \cdot q
+	\varphi (n) = \varphi (p)\cdot \varphi (q) = (p-1) \cdot (q-1), n = p \cdot q
 \end{align}
-Die Variable e ist uns bereits bekannt. Der schwierige Teil liegt wesentlich daran $\varphi $(n) herauszufinden. Mit anderen Worten muss man die zwei Primfaktoren p und q für n finden. Die Primfaktorzerlegung einer sehr großen Zahl zu finden, ist fast unmöglich. In der Praxis würde so ein Algorithmus nicht in polynomieller Zeit laufen. Mit dem „Schroeppel factoring algorithm“ wird die Faktorisierungszeit bei unterschiedlichen n- Längen dargestellt. Bereits bei einer 75 steligen n  kann dies zu einer Laufzeit von mehreren Monate führen. Selbst der heutzutage meistverwendete Primfaktorzerlegungsalgorithmus, Trial division, hat eine Laufzeit von O($n^{2}$). Somit ist die Sicherheit vom RSA hauptsächlich auf der Schwierigkeit der Faktorisierung basiert.
+Die Variable e ist uns bereits bekannt. Der schwierige Teil liegt wesentlich daran $\varphi $(n) herauszufinden. Mit anderen Worten muss man die zwei Primfaktoren p und q für n finden. Die Primfaktorzerlegung einer sehr großen Zahl zu finden, ist fast unmöglich. In der Praxis würde so ein Algorithmus nicht in polynomieller Zeit laufen. Mit dem „Schroeppel factoring algorithm“ wird die Faktorisierungszeit bei unterschiedlichen n- Längen dargestellt. Bereits bei einer 75 steligen n  kann dies zu einer Laufzeit von mehreren Monate führen. Selbst der heutzutage meistverwendete Primfaktorzerlegungsalgorithmus, Trial division, hat eine Laufzeit von O($n^{2}$). Somit ist die Sicherheit vom RSA hauptsächlich auf der Schwierigkeit der Faktorisierung basiert. \cite{AttacksOnRSA}
 
 \begin{table}[H]
 \centering
@@ -153,8 +174,9 @@ Die Variable e ist uns bereits bekannt. Der schwierige Teil liegt wesentlich dar
 \end{table}
 Bei unsere Implementierung ist unser N auf 19 Stellen eingeschränkt. Deshalb sind unsere Schlüssel unsicher und N kann sehr mit schnell mit der Primfaktorzerlegungsalgorithmus in zwei Primzahlen zerlegt werden.
  
-Ein weiterer Punkt wovon die Sicherheit von RSA auch abhängig ist, ist die Wahl von e. In Sektion 2.3 wurde erwähnt, dass die kleinste Zahl für e die Drei ist. Auch wenn der Verschlüsselungsexponent bei keinere Zahlen sehr schnell verläuft, ist die Sicherheit nicht vielversprechend. Im Fall, dass $m^{e}$ kleiner als N ist und auch wenn die Verschlüsselung der Nachricht sehr schnell verläfut, bedeutet es mit großen Wahrscheinlichkeit, dass der Verschlüsselungsexponent eine kleine Zahl, meistens die Drei ist. Solcher Angriff wird auch als Timing Attack genannt. Der Angreifer benutzt die Zeit für die Verschlüsselung der Nachricht, um Informationen über den Verschlüsselungsprozess zugewinnen. 
-Das Verfahren was wir implementiert haben wird auch Textbook RSA genannt. Es ist RSA ohne Padding. Das Verfahren verwendet viele mathematische Operationen und kann zu manchen Schwächen führen. Um diese zu vermeiden wird das Padding für RSA hinzugefügt.  Ein sehr häufig verwendetes Padding Verfahren für RSA ist das "optimal asymmetric encryption padding". \cite{AttacksOnRSA}
+Ein weiterer Punkt wovon die Sicherheit von RSA auch abhängig ist, ist die Wahl von e. In Sektion 2.3 wurde erwähnt, dass die kleinste Zahl für e die Drei ist. Auch wenn der Verschlüsselungsexponent bei keinere Zahlen sehr schnell verläuft, ist die Sicherheit nicht vielversprechend. Im Fall, dass $m^{e}$ kleiner als N ist und auch wenn die Verschlüsselung der Nachricht sehr schnell verläfut, bedeutet es mit großen Wahrscheinlichkeit, dass der Verschlüsselungsexponent eine kleine Zahl, meistens die Drei ist. Solcher Angriff wird auch als Timing Attack genannt. Der Angreifer benutzt die Zeit für die Verschlüsselung der Nachricht, um Informationen über den Verschlüsselungsprozess zugewinnen. \cite{TheRSAAlgorithm}
+
+Das Verfahren was wir implementiert haben wird auch Textbook RSA genannt. Es ist RSA ohne Padding. Das Verfahren verwendet viele mathematische Operationen und kann zu manchen Schwächen führen. Um diese zu vermeiden wird das Padding für RSA hinzugefügt.  Ein sehr häufig verwendetes Padding Verfahren für RSA ist das "optimal asymmetric encryption padding". \cite{DefinitionoftextbookRSA}
 
 
 
@@ -164,6 +186,67 @@ Das Verfahren was wir implementiert haben wird auch Textbook RSA genannt. Es ist
 
 
 \section{Performanzanalyse}
+Um die Performanz unserer Lösungsansätze und Optimierungen zu analysieren haben wir insgesamt sechs verschiedene Varianten der RSA in C und Assembly programmiert, bei denen paarweise einige Parameter unterschiedlich sind. Für ein besseres Verständis nennen wir zuerst die Variablen und nutzen ab jetzt VX für die X-te Variante:
+
+V0: Die Assembly-Implementierung, aka die Hauptimlementierung, mit dem linearen Kongruenzgenerator für die Zufallszahlgenerierung.
+V1: Die C-Implementierung mit dem kryptographischen Zufallszahlgenerator arc4random.
+V2: Die C-Implementierung mit dem linearen Kongruenzgenerator für die Zufallszahlgenerierung. Es ist sozusagen eine C Übersetzung der V0. Der kleine Unterschied wird unten erklärt.
+V3: Eine Variante von V2. Wir haben nur bei der Primecheck-Algorithmus die sqrt(n)-Funktion von C benutzt und die Laufzeitdifferenz verglichen. (Detaillierte Erklärung ist beim Teil 2.1 unter Primecheck-Algorithmus zu finden.)
+V4: Eine Variante von V2. Anstatt phi-Funktion wird die lambda-Funktion benutzt. (Detaillierte Erklärung ist beim Teil 2.2.1 zu finden.)
+V5: Eine Variante von V0. Es wird hier für Vergleichszwecke keine Zufallszahlgenerator verwendet und die p und q wurden aus der Zahlen 0xfffffffe und 0xfffffffd berechnet. Detaillierte Erklärung finden Sie unten.
+V6: Eine Variante von V2. Gleiche Modifizierungen wie bei V5.
+
+Für das Messen der Werte haben wir die clock\_gettime()-Funktion mit der Uhr CLOCK\_MONOTONIC verwendet. Alle Varianten wurden auf einem Raspberry Pi 3 mit Broadcom BCM2837 Prozessor mit 4 x ARM Cortex-A53, 1.2 GHz, 1 GB Arbeitsspeicher, Debian 10 (Buster), AArch64, Linux-Kernel 4.8.16, gcc 8.3.0 und Optimierungsstufe -O3 ausgeführt.
+
+Obwohl V0 die Hauptimplementierung ist, sind die Laufzeitergebnisse davon wertlos. Da RSA auf Zufallszahlen basiert, hängt die Laufzeit der V0 stark davon ab, wie viel es dauert, die passenden p und q zu finden. Trotz der Nutzung des Pseudo-Zufallszahlgenerators, sind die daraus entstehende Werte, mindestens für uns, nicht vorrechenbar. Die Grund dafür ist die Nutzung des Werts im Speicher [0x12345678] als Seed. Der unbekannte Wert weicht den Pseudo-Zufallsgenerator von Pseudo-sein ab. Bei C-Implementierungen ist das nicht der Fall, weil wir explizit einen unsigned long als Seed angeben, anstatt eine Speicheradresse. Damit die Vergleichung fairer ist, haben wir uns aber dafür entschieden, die gleiche Methode wie bei V5 in V2 zu nutzen. Das haben wir V6 genannt. Also, deshalb untersuchen wir die Laufzeiten von V5 und V6 als Referenz zum V0 und V2.
+
+\begin{table}[H]
+\centering
+   \begin{tabular}{||c c c||} 
+ \hline
+ Länge n & Anzahl Operationen & Zeit  \\ [0.5ex] 
+ \hline\hline
+ 50 & 1.4 $\times$ $10^{10}$  & 3.9 Stunden  \\ 
+ \hline
+ 75 & 9$\times $ $10^{12}$  & 104 Tage  \\
+ \hline
+ 100 & 2.3$\times $ $10^{15}$ & 74 Jahre  \\
+ \hline
+ 200 & 1.2$\times $ $10^{23}$ & 3.8$\times $ $10^{9}$ Jahre\\
+ \hline
+ 300 & 1.5$\times $ $10^{29}$ & 4.9$\times $ $10^{15}$ Jahre \\ [1ex] 
+ \hline
+
+\end{tabular}
+    \caption{Laufzeit Schroeppel factoring}
+\end{table}
+
+Bei V5 und V6 sind als “Zufallszahlen” zwei unidentische große zusammengesetzte Zahlen gewählt. So ist auch der Teil mit von nicht zusammengesetzten Zahlen eine Primzahl zu erstellen mitgerechnet. Die Ergebnisse sollen suboptimale Fälle begehen, wenn nicht die Schlimmsten. Man merkt auf der untenstehenden Tabelle, dass der gcc -O3 eine bessere Arbeit als uns geleistet hat. Die Werte sind aber sehr nah aneinander mit mit Referenz zum V5.
+
+Wie in 2.1 erwähnt, die Praktikumsordnung verbietet uns das Nutzen von komplexen arithmetischen Operationen wie sqrt(n). Deshalb haben wir den erklärten Umweg gefunden und benutzt. Aus unserem Sicht ist aber ein Vergleich nötig, um herauszufinden, ob zwischen den zwei Wege einen Unterschied beim Laufzeit gibt. Die untere Tabelle zeigt die Laufzeiten der Varianten V2 und V3.
+
+\begin{table}[H]
+\centering
+   \begin{tabular}{||c c c||} 
+ \hline
+ Länge n & Anzahl Operationen & Zeit  \\ [0.5ex] 
+ \hline\hline
+ 50 & 1.4 $\times$ $10^{10}$  & 3.9 Stunden  \\ 
+ \hline
+ 75 & 9$\times $ $10^{12}$  & 104 Tage  \\
+ \hline
+ 100 & 2.3$\times $ $10^{15}$ & 74 Jahre  \\
+ \hline
+ 200 & 1.2$\times $ $10^{23}$ & 3.8$\times $ $10^{9}$ Jahre\\
+ \hline
+ 300 & 1.5$\times $ $10^{29}$ & 4.9$\times $ $10^{15}$ Jahre \\ [1ex] 
+ \hline
+
+\end{tabular}
+    \caption{Laufzeit Schroeppel factoring}
+\end{table}
+
+Obwohl es in der Aufgabenstellung nicht steht, haben wir zusätzlich einen Ver- und Entschlüsseler programmiert. Unten auf der Tabelle sieht man, wie das Nutzen von Carmichaels Lambda-Funktion, wie in 2.2.1 erklärt, die Laufzeit beeinflusst. In V2 verwendet man die Euler’sche phi-Funktion und in V4 die lambda-Funktion.
 
 
 \section{Zusammenfassung und Ausblick}
@@ -179,6 +262,12 @@ Abbilldung 1: \url{https://en.wikipedia.org/wiki/Carmichael_function#/media/File
 % TODO: Fuegen Sie Ihre Quellen der Datei Ausarbeitung.bib hinzu
 % Referenzieren Sie diese dann mit \cite{}.
 % Beispiel: CR2 ist ein Register der x86-Architektur~\cite{intel2017man}.
+% \cite{AttacksOnRSA}
+% \cite{TheRSAAlgorithm}
+% \cite{TTheRSAAlgorithm}
+% \cite{Carmicael}
+% \cite{ExtendedEuclideanAlgorithm}
+% \cite{DefinitionoftextbookRSA}
 \bibliographystyle{plain}
 \bibliography{Ausarbeitung}{}
 
