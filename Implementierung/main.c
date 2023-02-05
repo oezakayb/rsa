@@ -18,11 +18,12 @@ const char* usage_msg =
 const char* help_msg =
         "  -V X Runs the chosen version of implementation\n"
         "       V0: Assembly implementation (default)\n"
-        "       V1: C implementation\n"
-        "       V2: C implementation with improved prime check\n"
-        "       V3: C implementation with Carmichael's totient function\n"
-        "       V4: Assembly implementation with predefined p, q and N (for comparison)\n"
-        "       V5: C implementation with predefined p, q and N (for comparison)\n"
+        "       V1: C implementation with arc4random\n"
+        "       V2: C implementation with linear congruential generaor\n"
+        "       V3: C implementation with linear congruential generator and improved prime check\n"
+        "       V4: C implementation with Carmichael's totient function\n"
+        "       V5: Assembly implementation with predefined p, q and N (for comparison)\n"
+        "       V6: C implementation with predefined p, q and N (for comparison)\n"
         "  -B X The program will run for X times and the total and average runtime of the given version (if specified) of implementation will be measured\n"
         "       and printed along with the last generated pair\n"
         "  -e M Encrypts and decrypts M with the generated (the last one if -B is on) key pairs\n"
@@ -85,7 +86,7 @@ int main(int argc, char** argv) {
     unsigned int *seed = malloc(sizeof *seed);
 
     if(e == NULL || d == NULL || N == NULL || seed == NULL) {
-        printf("No memory!");
+        printf("No memory!\n");
         return EXIT_FAILURE;
     }
 
@@ -225,24 +226,24 @@ int main(int argc, char** argv) {
     printf("Public key: %lu, %lu\nPrivate key: %lu, %lu\n", *e, *N, *d, *N);
 
     if(ebool) {
-        unsigned __int128 c = 1;
-        while (*e > 0) {
-            if (*e & 1) {
-                c = (c * M) % *N;
+            unsigned __int128 c = 1;
+            while (*e > 0) {
+                if (*e & 1) {
+                    c = (c * M) % *N;
+                }
+                *e = *e >> 1;
+                M = (M * M) % *N;
             }
-            *e = *e >> 1;
-            M = (M * M) % *N;
-        }
-        M = 1;
-        printf("C: %lu\n", (unsigned long) c);
-        while (*d > 0) {
-            if (*d & 1) {
-                M = (M * c) % *N;
+            M = 1;
+            printf("C: %lu\n", (unsigned long) c);
+            while (*d > 0) {
+                if (*d & 1) {
+                    M = (M * c) % *N;
+                }
+                *d = *d >> 1;
+                c = (c * c) % *N;
             }
-            *d = *d >> 1;
-            c = (c * c) % *N;
-        }
-        printf("D: %lu\n", (unsigned long) M);
+            printf("D: %lu\n", (unsigned long) M);
     }
 
     free(e);
