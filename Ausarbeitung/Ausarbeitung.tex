@@ -182,71 +182,64 @@ Das Verfahren was wir implementiert haben wird auch Textbook RSA genannt. Es ist
 
 
 % TODO: Je nach Aufgabenstellung einen der Begriffe wählen
-\section{Korrektheit/Genauigkeit}
+\section{Korrektheit}
+Unsere Aufgabe bei dem RSA- Algorithmus war ledigtlich nur die Implementierung von Generierung der Schlüsseln. Unsere erste Gedanke war, dass wir mit Hilfe von den Generierten Schlüsseln überprüfen, ob die eingegebene Nachricht sich mit den Schlüssel korrekt ver- und entschlüsseln lässt. Allerdings kann die von uns erzeugten Schlüssel bis zu 20 Stellen. Eine Zahl mit einem 20 Stelligen Exponent würde viel zu groß sein für die calculation. Deshalb haben wir für die überprüfung eher kleine Zahlen verwendet wie zum Beispiel für e die 3. Die verschlüsselte Nachricht lässt sich erolgreich wie erwartet wieder in die richtige Nachtricht entschlüsseln. Das ist auch unsere Erwartung, denn das Erzeugen diese Schlüssen verlaufen nach genauen mathematischen Vorraussetzungen. Auch bei der Implementierung wird häufig der Vorgang wiederholt, falls die Zahl die mathematischen Vorraussetzungen nicht erfüllegn. Bei der Generierung von zwei Primzahlen wird zum Beispiel geschaut ob die zufällig gewählte Zahl eine Primzahl ist. Falls nicht so wird erneut eine Zahl ausgesucht, bis eine Primzahl gefunden wird. Bei der Wahl von e muss e die Eigenschaft haben, dass es größer als 1 ist und kleiner $\varphi $(N) und zu dem muss e teilerfremd zu $\varphi $(N). Die erste Eigenschaft ist einfach zu überprüfen. Bei der zweiten Eigenschaft wird iterativ überprüft ob e die Eigenschaft erfüllt. Wenn e nicht teilerfremd zu $\varphi $(N) ist, so wird e um 3 erhöht und erneut überprüft, bis es die Eigenschaft erfüllt. Bei der letzten Variable d wird der EEA verwendet. Da dieser nur eine Berechnung der Formel ist, kann d nicht falsch gewählt werden.
 
+Zusammengefasst lässt sich sagen, die Generierung der einzelnen Parametern von RSA verfolgt strengen Regeln und wird oft iterativ implementiert. Eine Iteration ende erst wenn die mathematischen Eigenschaften erfüllen. 
 
 \section{Performanzanalyse}
 Um die Performanz unserer Lösungsansätze und Optimierungen zu analysieren haben wir insgesamt sechs verschiedene Varianten der RSA in C und Assembly programmiert, bei denen paarweise einige Parameter unterschiedlich sind. Für ein besseres Verständis nennen wir zuerst die Variablen und nutzen ab jetzt VX für die X-te Variante:
 
-V0: Die Assembly-Implementierung, aka die Hauptimlementierung, mit dem linearen Kongruenzgenerator für die Zufallszahlgenerierung.
-V1: Die C-Implementierung mit dem kryptographischen Zufallszahlgenerator arc4random.
-V2: Die C-Implementierung mit dem linearen Kongruenzgenerator für die Zufallszahlgenerierung. Es ist sozusagen eine C Übersetzung der V0. Der kleine Unterschied wird unten erklärt.
-V3: Eine Variante von V2. Wir haben nur bei der Primecheck-Algorithmus die sqrt(n)-Funktion von C benutzt und die Laufzeitdifferenz verglichen. (Detaillierte Erklärung ist beim Teil 2.1 unter Primecheck-Algorithmus zu finden.)
-V4: Eine Variante von V2. Anstatt phi-Funktion wird die lambda-Funktion benutzt. (Detaillierte Erklärung ist beim Teil 2.2.1 zu finden.)
-V5: Eine Variante von V0. Es wird hier für Vergleichszwecke keine Zufallszahlgenerator verwendet und die p und q wurden aus der Zahlen 0xfffffffe und 0xfffffffd berechnet. Detaillierte Erklärung finden Sie unten.
-V6: Eine Variante von V2. Gleiche Modifizierungen wie bei V5.
+\begin{itemize}
+	\item V0: Die Assembly-Implementierung, aka die Hauptimlementierung, mit dem linearen Kongruenzgenerator für die Zufallszahlgenerierung.
+	\item V1: Die C-Implementierung mit dem linearen Kongruenzgenerator für die Zufallszahlgenerierung. Es ist sozusagen eine C Übersetzung der V0. Der kleine Unterschied wird unten erklärt.
+	\item V2: Eine Variante von V2. Wir haben nur bei der Primecheck-Algorithmus die sqrt(n)-Funktion von C benutzt und die Laufzeitdifferenz verglichen. (Detaillierte Erklärung ist beim Teil 2.1 unter Primecheck-Algorithmus zu finden.)
+	\item V3: Eine Variante von V2. Anstatt phi-Funktion wird die lambda-Funktion benutzt. (Detaillierte Erklärung ist beim Teil 2.2.1 zu finden.)
+	\item V4: Eine Variante von V0. Es wird hier für Vergleichszwecke keine Zufallszahlgenerator verwendet und die p und q wurden aus der Zahlen 0xfffffffe und 0xfffffffd berechnet. Detaillierte Erklärung finden Sie unten.
+	\item V5: Eine Variante von V2. Gleiche Modifizierungen wie bei V5.
+\end{itemize}
+
 
 Für das Messen der Werte haben wir die clock\_gettime()-Funktion mit der Uhr CLOCK\_MONOTONIC verwendet. Alle Varianten wurden auf einem Raspberry Pi 3 mit Broadcom BCM2837 Prozessor mit 4 x ARM Cortex-A53, 1.2 GHz, 1 GB Arbeitsspeicher, Debian 10 (Buster), AArch64, Linux-Kernel 4.8.16, gcc 8.3.0 und Optimierungsstufe -O3 ausgeführt.
 
-Obwohl V0 die Hauptimplementierung ist, sind die Laufzeitergebnisse davon wertlos. Da RSA auf Zufallszahlen basiert, hängt die Laufzeit der V0 stark davon ab, wie viel es dauert, die passenden p und q zu finden. Trotz der Nutzung des Pseudo-Zufallszahlgenerators, sind die daraus entstehende Werte, mindestens für uns, nicht vorrechenbar. Die Grund dafür ist die Nutzung des Werts im Speicher [0x12345678] als Seed. Der unbekannte Wert weicht den Pseudo-Zufallsgenerator von Pseudo-sein ab. Bei C-Implementierungen ist das nicht der Fall, weil wir explizit einen unsigned long als Seed angeben, anstatt eine Speicheradresse. Damit die Vergleichung fairer ist, haben wir uns aber dafür entschieden, die gleiche Methode wie bei V5 in V2 zu nutzen. Das haben wir V6 genannt. Also, deshalb untersuchen wir die Laufzeiten von V5 und V6 als Referenz zum V0 und V2.
+Obwohl V0 die Hauptimplementierung ist, sind die Laufzeitergebnisse davon wertlos. Da RSA auf Zufallszahlen basiert, hängt die Laufzeit der V0 stark davon ab, wie viel es dauert, die passenden p und q zu finden. Trotz der Nutzung des Pseudo-Zufallszahlgenerators, sind die daraus entstehende Werte, mindestens für uns, nicht vorrechenbar. Die Grund dafür ist die Nutzung des Werts im Speicher [0x12345678] als Seed. Der unbekannte Wert weicht den Pseudo-Zufallsgenerator von Pseudo-sein ab. Bei C-Implementierungen ist das nicht der Fall, weil wir explizit einen unsigned long als Seed angeben, anstatt eine Speicheradresse. Damit die Vergleichung fairer ist, haben wir uns aber dafür entschieden, die gleiche Methode wie bei V4 in V1 zu nutzen. Das haben wir V6 genannt. Also, deshalb untersuchen wir die Laufzeiten von V4 und V5 als Referenz zum V0 und V1.
 
 \begin{table}[H]
 \centering
-   \begin{tabular}{||c c c||} 
+   \begin{tabular}{||c c||} 
  \hline
- Länge n & Anzahl Operationen & Zeit  \\ [0.5ex] 
+ Variante & Sekunden   \\ [0.5ex] 
  \hline\hline
- 50 & 1.4 $\times$ $10^{10}$  & 3.9 Stunden  \\ 
+ V4 & 0.0420 $\times $ $10^{-2}$  \\ 
  \hline
- 75 & 9$\times $ $10^{12}$  & 104 Tage  \\
- \hline
- 100 & 2.3$\times $ $10^{15}$ & 74 Jahre  \\
- \hline
- 200 & 1.2$\times $ $10^{23}$ & 3.8$\times $ $10^{9}$ Jahre\\
- \hline
- 300 & 1.5$\times $ $10^{29}$ & 4.9$\times $ $10^{15}$ Jahre \\ [1ex] 
+ V5 & 0.0388$\times $ $10^{-2}$   \\ [1ex] 
  \hline
 
 \end{tabular}
-    \caption{Laufzeit Schroeppel factoring}
+    \caption{Durchschnittliche Laufzeit der Varianten bei 1 Mio. Rundenzahl}
 \end{table}
 
-Bei V5 und V6 sind als “Zufallszahlen” zwei unidentische große zusammengesetzte Zahlen gewählt. So ist auch der Teil mit von nicht zusammengesetzten Zahlen eine Primzahl zu erstellen mitgerechnet. Die Ergebnisse sollen suboptimale Fälle begehen, wenn nicht die Schlimmsten. Man merkt auf der untenstehenden Tabelle, dass der gcc -O3 eine bessere Arbeit als uns geleistet hat. Die Werte sind aber sehr nah aneinander mit mit Referenz zum V5.
+Bei V4 und V5 sind als “Zufallszahlen” zwei unidentische große zusammengesetzte Zahlen gewählt. So ist auch der Teil mit von nicht zusammengesetzten Zahlen eine Primzahl zu erstellen mitgerechnet. Die Ergebnisse sollen suboptimale Fälle begehen, wenn nicht die Schlimmsten. Man merkt auf der untenstehenden Tabelle, dass der gcc -O3 eine bessere Arbeit als uns geleistet hat. Die Werte sind aber sehr nah aneinander mit mit Referenz zum V4.
 
-Wie in 2.1 erwähnt, die Praktikumsordnung verbietet uns das Nutzen von komplexen arithmetischen Operationen wie sqrt(n). Deshalb haben wir den erklärten Umweg gefunden und benutzt. Aus unserem Sicht ist aber ein Vergleich nötig, um herauszufinden, ob zwischen den zwei Wege einen Unterschied beim Laufzeit gibt. Die untere Tabelle zeigt die Laufzeiten der Varianten V2 und V3.
+Wie in 2.1 erwähnt, die Praktikumsordnung verbietet uns das Nutzen von komplexen arithmetischen Operationen wie sqrt(n). Deshalb haben wir den erklärten Umweg gefunden und benutzt. Aus unserem Sicht ist aber ein Vergleich nötig, um herauszufinden, ob zwischen den zwei Wege einen Unterschied beim Laufzeit gibt. Die untere Tabelle zeigt die Laufzeiten der Varianten V1 und V2.
 
 \begin{table}[H]
 \centering
-   \begin{tabular}{||c c c||} 
+   \begin{tabular}{||c c||} 
  \hline
- Länge n & Anzahl Operationen & Zeit  \\ [0.5ex] 
+ Variante & Sekunden   \\ [0.5ex] 
  \hline\hline
- 50 & 1.4 $\times$ $10^{10}$  & 3.9 Stunden  \\ 
+ V1 & 0.0097 $\times $ $10^{-2}$  \\ 
  \hline
- 75 & 9$\times $ $10^{12}$  & 104 Tage  \\
- \hline
- 100 & 2.3$\times $ $10^{15}$ & 74 Jahre  \\
- \hline
- 200 & 1.2$\times $ $10^{23}$ & 3.8$\times $ $10^{9}$ Jahre\\
- \hline
- 300 & 1.5$\times $ $10^{29}$ & 4.9$\times $ $10^{15}$ Jahre \\ [1ex] 
+ V2 & 0.0090$\times $ $10^{-2}$   \\ [1ex] 
  \hline
 
 \end{tabular}
-    \caption{Laufzeit Schroeppel factoring}
+    \caption{Durchschnittliche Laufzeit der Varianten bei 1 Mio. Rundenzahl}
 \end{table}
 
-Obwohl es in der Aufgabenstellung nicht steht, haben wir zusätzlich einen Ver- und Entschlüsseler programmiert. Unten auf der Tabelle sieht man, wie das Nutzen von Carmichaels Lambda-Funktion, wie in 2.2.1 erklärt, die Laufzeit beeinflusst. In V2 verwendet man die Euler’sche phi-Funktion und in V4 die lambda-Funktion.
+
+Obwohl es in der Aufgabenstellung nicht steht, haben wir zusätzlich einen Ver- und Entschlüsseler Programm programmiert. 
 
 
 \section{Zusammenfassung und Ausblick}
@@ -254,7 +247,7 @@ In dieser Projektarbeit hatten wir die Aufgabe mit dem Verschlüsselungsverfahre
 
 Für die Implementierung der Schlüsselgenerierung haben wir zunächst das Problem in drei Teile aufgeteilt. Wir haben mit der Variable N angefangen. Dabei sei die schwierigkeit zwei zufällige Primezahl zu generieren. Anschließend kommt die Wahl von e in Frage. Dafür haben wir die zwei häufigetsen gewählten Zahl für e rausgesucht und bei bestimmten Fällen einer dieser Zahlen verwendet. Zum Schluss musst noch festgelegt werden, welche Zahl d ist. Mit dem Verfahren von EEA kann man aus e und N die Variable d herleiten. 
 
-Die generierung von den drei Variablen verläuft nach strickten mathematischen Voraussetzungen und deshalb sind die immer genau. 
+Die generierung von den drei Variablen verläuft nach strickten mathematischen Voraussetzungen und deshalb sind die immer genau. Wir wollten bei den zwei Varianten V1 und V3 die Ver- und Entschlüsselungslaufzeit vergleichen. Da es aber sehr kurz dauert, die Nachrichten zu verarbeiten, haben wir dies nicht gemacht.
 
 \section{Bildequellen}
 Abbilldung 1: \url{https://en.wikipedia.org/wiki/Carmichael_function#/media/File:CarmichaelLambda.svg}(03.02.2023)
