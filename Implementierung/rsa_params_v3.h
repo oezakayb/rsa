@@ -1,1 +1,0 @@
-void get_rsa_params_v3(unsigned long *e, unsigned long *d, unsigned long *N);

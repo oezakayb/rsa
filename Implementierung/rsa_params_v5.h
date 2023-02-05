@@ -1,0 +1,1 @@
+void get_rsa_params_v5(unsigned long* e, unsigned long* d, unsigned long* N);
